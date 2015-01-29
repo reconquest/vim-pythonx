@@ -10,6 +10,28 @@ variable declaration
 
 ![cycle_by_var_name](https://cloud.githubusercontent.com/assets/674812/5943979/32561378-a745-11e4-92a9-e28618dc4c09.gif)
 
+#### Usage with UltiSnips
+
+In `go.snippets`:
+
+```
+snippet i "if "
+if ${1:`!p snip.rv=go.get_last_var_for_snippet()`} {
+        ${2:${VISUAL}}
+}
+endsnippet
+```
+
+In `.vimrc`:
+
+```viml
+au FileType go inoremap <C-L> <C-\><C-O>:py go.cycle_by_var_name()<CR>
+au FileType go smap <C-L> <BS><C-L>
+```
+
+`i` will expand into if with last used variable as condition. Use `<C-L>` to
+select previous variables.
+
 ### `extract_prev_method_binding_for_cursor()`
 
 Returns binded variable name and type name for inserting into method declarations:
@@ -24,6 +46,24 @@ Method will deduce tuple `(someVar TypeForSomeVar)` from either previous method
 declaration or type declaration.
 
 ![extract_prev_method_binding_for_cursor](https://cloud.githubusercontent.com/assets/674812/5944082/0e46ff28-a746-11e4-8cf6-3e67e639e872.gif)
+
+#### Usage with UltiSnips
+
+In `go.snippets`:
+
+```
+snippet d "define method"
+func (`!p snip.rv=' '.join(go.extract_prev_method_binding_for_cursor())`) $1($2) $3${3/.+/ /}{
+        $4
+}
+endsnippet
+
+snippet dp "define method on pointer"
+func (`!p snip.rv=' *'.join(go.extract_prev_method_binding_for_cursor())`) $1($2) $3${3/.+/ /}{
+        $4
+}
+endsnippet
+```
 
 ### `guess_package_name_from_file_name(path)`
 
