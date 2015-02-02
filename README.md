@@ -1,5 +1,22 @@
 # Python libraries for better Vim coding
 
+## Installation
+
+* Clone repo into your `~/.vim/pythonx` directory
+
+* Import required py-modules into vim namespace (in your `~/.vimrc`):
+  ```
+  py import util
+  py import go
+  ```
+
+* Import required py-modules in snippets files (e.g. in `go.snippets`):
+  ```
+  global !p
+  import go
+  endglobal
+  ```
+
 ## Go
 
 ### `cycle_by_var_name(identifiers=[])`
