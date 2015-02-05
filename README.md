@@ -4,17 +4,17 @@
 
 Just add plugin using [Plug](https://github.com/junegunn/vim-plug):
 
-```
+```viml
 Plug 'seletskiy/vim-pythonx'
 ```
 
 Import required py-modules in snippets files (e.g. in `go.snippets`):
 
-  ```
-  global !p
-  import go
-  endglobal
-  ```
+```
+global !p
+import go
+endglobal
+```
 
 ## PHP
 
@@ -25,14 +25,14 @@ Will get identifier under cursor and either complete it to the full variable
 name from previous code in file, or substitute identifier with previous
 variable declaration.
 
-![cycle by var name php](https://cloud.githubusercontent.com/assets/8445924/6055740/97ca2092-acfd-11e4-92d4-bd117fcbc5aa.gif)
+![cycle by var name php](https://cloud.githubusercontent.com/assets/8445924/6058137/65e9eb92-ad1c-11e4-999b-ed4cf59fba98.gif)
 
 ### `get_phpdoc_variables_before_cursor()`
 Returns key-value data from phpdoc before current cursor position. Sometimes value may be array.
 
 Getter/setter snippets, based on this and following functions:
 
-![getter/setter php](https://cloud.githubusercontent.com/assets/8445924/6055706/a64d8f42-acfc-11e4-8c44-1296ddad121f.gif)
+![getter/setter php](https://cloud.githubusercontent.com/assets/8445924/6056755/7fc473a2-ad0d-11e4-9d79-3ac5e8988f21.gif)
 
 Snippets from the above gif: [php_vim_pythonx.snippets](https://github.com/kovetskiy/dotfiles/blob/master/.vim/UltiSnips/php_vim_pythonx.snippets)
 
