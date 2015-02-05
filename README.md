@@ -18,6 +18,8 @@ Import required py-modules in snippets files (e.g. in `go.snippets`):
 
 ## PHP
 
+Thx [@kovetskiy](https://github.com/kovetskiy).
+
 ### `cycle_by_var_name(identifiers=[])`
 Will get identifier under cursor and either complete it to the full variable
 name from previous code in file, or substitute identifier with previous
