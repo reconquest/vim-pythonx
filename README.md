@@ -1,13 +1,15 @@
-# Python libraries for better Vim coding
+# Python libraries for smarter Vim coding
 
 ## Installation
 
-Just add plugin:
+Just add plugin using [Plug](https://github.com/junegunn/vim-plug):
+
 ```
 Plug 'seletskiy/vim-pythonx'
 ```
 
 * Import required py-modules in snippets files (e.g. in `go.snippets`):
+
   ```
   global !p
   import go
@@ -16,11 +18,29 @@ Plug 'seletskiy/vim-pythonx'
 
 ## PHP
 
-setters/getters:
-https://cloud.githubusercontent.com/assets/8445924/6055706/a64d8f42-acfc-11e4-8c44-1296ddad121f.gif
+### `cycle_by_var_name(identifiers=[])`
+Will get identifier under cursor and either complete it to the full variable
+name from previous code in file, or substitute identifier with previous
+variable declaration.
 
-cycle by var name:
-https://cloud.githubusercontent.com/assets/8445924/6055740/97ca2092-acfd-11e4-92d4-bd117fcbc5aa.gif
+![cycle by var name php](https://cloud.githubusercontent.com/assets/8445924/6055740/97ca2092-acfd-11e4-92d4-bd117fcbc5aa.gif)
+
+### `get_phpdoc_variables_before_cursor()`
+Returns key-value data from phpdoc before current cursor position. Sometimes value may be array.
+
+Getter/setter snippets, based on this and following functions:
+
+![getter/setter php](https://cloud.githubusercontent.com/assets/8445924/6055706/a64d8f42-acfc-11e4-8c44-1296ddad121f.gif)
+
+Snippets from the above gif: [php_vim_pythonx.snippets](https://github.com/kovetskiy/dotfiles/blob/master/.vim/UltiSnips/php_vim_pythonx.snippets)
+
+### `get_class_name_with_underscored_namespaces(path="")`
+Returns a class name with expanded namespaces from path variable.
+
+### `get_camelcase_identifier_from_string(string, with_dollar=True)`
+Returns camelCase identifier from string, for example:  
+`protected $_storage;`  
+returns just `Storage`.
 
 ## Go
 
@@ -30,7 +50,7 @@ Will get identifier under cursor and either complete it to the full variable
 name from previous code in file, or substitute identifier with previous
 variable declaration
 
-![cycle_by_var_name](https://cloud.githubusercontent.com/assets/674812/5943979/32561378-a745-11e4-92a9-e28618dc4c09.gif)
+![cycle by var name](https://cloud.githubusercontent.com/assets/674812/5943979/32561378-a745-11e4-92a9-e28618dc4c09.gif)
 
 #### Usage with UltiSnips
 
