@@ -2,13 +2,10 @@
 
 ## Installation
 
-* Clone repo into your `~/.vim/pythonx` directory
-
-* Import required py-modules into vim namespace (in your `~/.vimrc`):
-  ```
-  py import util
-  py import go
-  ```
+Just add plugin:
+```
+Plug 'seletskiy/vim-pythonx'
+```
 
 * Import required py-modules in snippets files (e.g. in `go.snippets`):
   ```
@@ -16,6 +13,14 @@
   import go
   endglobal
   ```
+
+## PHP
+
+setters/getters:
+https://cloud.githubusercontent.com/assets/8445924/6055706/a64d8f42-acfc-11e4-8c44-1296ddad121f.gif
+
+cycle by var name:
+https://cloud.githubusercontent.com/assets/8445924/6055740/97ca2092-acfd-11e4-92d4-bd117fcbc5aa.gif
 
 ## Go
 
