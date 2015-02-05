@@ -8,7 +8,7 @@ Just add plugin using [Plug](https://github.com/junegunn/vim-plug):
 Plug 'seletskiy/vim-pythonx'
 ```
 
-* Import required py-modules in snippets files (e.g. in `go.snippets`):
+Import required py-modules in snippets files (e.g. in `go.snippets`):
 
   ```
   global !p
