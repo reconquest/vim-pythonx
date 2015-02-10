@@ -111,7 +111,7 @@ def smart_convert_to_camelcase(identifier):
     if identifier[0] == '_':
         identifier = identifier[1:]
 
-    identifier = identifier.title()
+    identifier = identifier[:1].capitalize() + identifier[1:]
 
     return identifier
 
