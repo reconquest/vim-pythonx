@@ -67,14 +67,21 @@ def get_all_last_used_identifiers():
 
     for line in reversed(search_space.split('\n')):
         line_number -= 1
-        matches = re.finditer(r'(\$[\w_\->]+)(?![\w]*\()', line)
+        matches = re.finditer(r'(protected|public|private|var)?\s?(\$[\w_\->]+)(?![\w]*\()', line)
 
         if not matches:
             continue
 
         for match in reversed(list(matches)):
-            identifier = match.groups(1)[0]
-            identifiers.append((identifier, line_number, match.start(1)+1))
+            is_class_member = match.groups(0)[0]
+            identifier = match.groups(0)[1]
+
+            identifiers.append((identifier, line_number, match.start(2)+1))
+
+            if is_class_member:
+                identifiers.append(('$this->' + identifier[1:], line_number,
+                    match.start(2)+1))
+
 
     return identifiers
 
