@@ -275,3 +275,13 @@ def get_package_name_from_file(path):
                 continue
             if line.startswith('package '):
                 return line.split(' ')[1].strip()
+
+def is_if_bracket(buffer, line, column):
+    return util.get_pair_line(buffer, line, column).startswith("if")
+
+def is_struct_bracket(buffer, line, column):
+    is_struct_def = re.match("^type \w+ struct",
+        util.get_pair_line(buffer, line, column))
+    is_method_def = re.match("^func \(\w+ \w+\) ",
+        util.get_pair_line(buffer, line, column))
+    return is_struct_def or is_method_def

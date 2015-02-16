@@ -62,3 +62,10 @@ def paste(content):
     vim.command('set paste')
     vim.command('normal i' + content)
     vim.command('set nopaste')
+
+def get_pair_line(buffer, line, column):
+	vim.command("normal %")
+	pair_line = vim.current.buffer[vim.current.window.cursor[0]-1]
+	print(pair_line)
+	vim.current.window.cursor = (line, column)
+	return pair_line
