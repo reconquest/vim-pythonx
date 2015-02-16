@@ -277,7 +277,7 @@ def get_package_name_from_file(path):
                 return line.split(' ')[1].strip()
 
 def is_if_bracket(buffer, line, column):
-    return util.get_pair_line(buffer, line, column).startswith("if")
+    return util.get_pair_line(buffer, line, column).strip().startswith("if")
 
 def is_struct_bracket(buffer, line, column):
     is_struct_def = re.match("^type \w+ struct",
