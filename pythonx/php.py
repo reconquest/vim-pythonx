@@ -76,12 +76,11 @@ def get_all_last_used_identifiers():
             is_class_member = match.groups(0)[0]
             identifier = match.groups(0)[1]
 
-            identifiers.append((identifier, line_number, match.start(2)+1))
-
             if is_class_member:
                 identifiers.append(('$this->' + identifier[1:], line_number,
                     match.start(2)+1))
-
+            else:
+                identifiers.append((identifier, line_number, match.start(2)+1))
 
     return identifiers
 
@@ -102,7 +101,17 @@ def get_identifier_under_cursor(with_dollar=True):
     line_number, column_number = vim.current.window.cursor
     line = vim.current.window.buffer[line_number-1][:column_number]
 
-    return get_identifier_from_string(line, with_dollar)
+    matches = re.search('(\$[\w_\->]+)$', line)
+
+    if not matches:
+        return ""
+
+    result = matches.group(1)
+
+    if with_dollar == False and result[0] == '$':
+        result = result[1:]
+
+    return result
 
 def smart_convert_to_camelcase(identifier):
     """
