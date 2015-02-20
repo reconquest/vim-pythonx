@@ -285,3 +285,10 @@ def is_struct_bracket(buffer, line, column):
     is_method_def = re.match("^func \(\w+ \w+\) ",
         util.get_pair_line(buffer, line, column))
     return is_struct_def or is_method_def
+
+def autoimport():
+    identifier = get_identifier_under_cursor()
+    if identifier.count('.') > 1:
+        return
+    possible_package = identifier.split('.')[0]
+    vim.command('call GoSwitchImport(1, "", "{}")'.format(possible_package))
