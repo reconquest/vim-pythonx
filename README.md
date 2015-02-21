@@ -109,6 +109,12 @@ func (`!p snip.rv=' *'.join(go.extract_prev_method_binding_for_cursor())`) $1($2
 endsnippet
 ```
 
+### `autoimport()`
+
+![autoimport](https://cloud.githubusercontent.com/assets/674812/6315020/89cb4fbe-ba15-11e4-939f-3e2bffc73aea.gif)
+
+Try to import corresponding package with looking for name under cursor.
+
 ### `guess_package_name_from_file_name(path)`
 
 Return basename part of the path for using as new package name.
