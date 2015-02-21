@@ -20,6 +20,8 @@ GO_SYNTAX_ITEMS = [
     'Type',
 ]
 
+_imports_cache = {}
+
 def extract_prev_method_binding_for_cursor():
     search_space = util.get_buffer_before_cursor()
 
@@ -291,4 +293,51 @@ def autoimport():
     if identifier.count('.') > 1:
         return
     possible_package = identifier.split('.')[0]
-    vim.command('call GoSwitchImport(1, "", "{}")'.format(possible_package))
+    import_path = get_import_path_for_identifier(possible_package)
+    if not import_path:
+        return
+    vim.command('call GoSwitchImport(1, "", "{}")'.format(import_path))
+
+def get_import_path_for_identifier(identifier):
+    imports = get_all_imports()
+    if identifier not in imports:
+        return None
+    return imports[identifier]
+
+# @TODO: create cache function wrapper
+def get_all_imports():
+    global _imports_cache
+
+    if _imports_cache:
+        return _imports_cache
+
+    goroot = os.environ.get(
+        'GOROOT',
+        GOROOT.strip()
+    )
+
+    gopath = os.environ['GOPATH']
+    gopath += ":" + goroot
+
+    _imports_cache = {}
+
+    for lib_path in gopath.split(':'):
+        src_dir = os.path.join(lib_path, "src")
+        some_gofile_found = False
+        for root, dirs, files in os.walk(src_dir):
+            for file_name in [f for f in files if f.endswith('.go') and
+                    not f.endswith('_test.go')]:
+                some_gofile_found = True
+                full_file_name = os.path.join(root, file_name)
+                package_name = get_package_name_from_file(full_file_name)
+                # +1 stands for /
+                _imports_cache[package_name] = root[len(src_dir)+1:]
+                break
+            else:
+                # if in parent directory was some go-files and in current
+                # directory are none, we should not descend any further
+                if some_gofile_found:
+                    some_gofile_found = False
+                    dirs[:] = []
+
+    return _imports_cache
