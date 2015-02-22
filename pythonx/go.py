@@ -296,7 +296,7 @@ def autoimport():
     import_path = get_import_path_for_identifier(possible_package)
     if not import_path:
         return
-    vim.command('call GoSwitchImport(1, "", "{}")'.format(import_path))
+    vim.command('GoImport {}'.format(import_path))
 
 def get_import_path_for_identifier(identifier):
     imports = get_all_imports()
