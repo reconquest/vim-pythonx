@@ -8,7 +8,7 @@ import glob
 
 import util
 
-GOROOT = subprocess.check_output(['go', 'env', 'GOROOT'])
+GOROOT = subprocess.check_output(['go', 'env', 'GOROOT']).strip()
 
 GO_SYNTAX_ITEMS = [
     'String',
@@ -249,10 +249,9 @@ def get_imports():
 
 
 def path_to_import_name(path):
-    goroot = os.environ.get(
-        'GOROOT',
-        GOROOT.strip()
-    )
+    goroot = os.environ.get('GOROOT')
+    if not goroot:
+        goroot = GOROOT
 
     gopath = os.environ['GOPATH']
     gopath += ":" + goroot
@@ -311,10 +310,9 @@ def get_all_imports():
     if _imports_cache:
         return _imports_cache
 
-    goroot = os.environ.get(
-        'GOROOT',
-        GOROOT.strip()
-    )
+    goroot = os.environ.get('GOROOT')
+    if not goroot:
+        goroot = GOROOT
 
     gopath = os.environ['GOPATH']
     gopath += ":" + goroot
