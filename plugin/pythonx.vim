@@ -5,6 +5,7 @@ augroup vim_pythonx_go
     au FileType go py import go
     au FileType go inoremap <C-L> <C-\><C-O>:py go.cycle_by_var_name()<CR>
     au FileType go smap <C-L> <BS><C-L>
+    au FileType go inoremap <buffer> . <C-\><C-O>:py go.autoimport()<CR>.
 augroup END
 
 augroup vim_pythonx_php
