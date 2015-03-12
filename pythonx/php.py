@@ -132,6 +132,13 @@ def get_camelcase_identifier_from_string(string, with_dollar=True):
     """
     return smart_convert_to_camelcase(get_identifier_from_string(string, with_dollar))
 
+def get_last_used_identifier(prev_var='', identifiers=[]):
+    var_data = get_last_used_var(prev_var, identifiers)
+    if not var_data:
+        return ''
+
+    return var_data[0]
+
 def get_last_used_var(prev_var='', identifiers=[]):
     if not identifiers:
         identifiers = get_all_last_used_identifiers()
