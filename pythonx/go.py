@@ -329,7 +329,10 @@ def get_all_imports():
                 full_file_name = os.path.join(root, file_name)
                 package_name = get_package_name_from_file(full_file_name)
                 # +1 stands for /
-                _imports_cache[package_name] = root[len(src_dir)+1:]
+                import_path = root[len(src_dir)+1:]
+                if lib_path == goroot and import_path[:4] == "pkg/":
+                    import_path = import_path[4:]
+                _imports_cache[package_name] = import_path
                 break
             else:
                 # if in parent directory was some go-files and in current
