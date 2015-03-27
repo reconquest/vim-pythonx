@@ -68,3 +68,10 @@ def get_pair_line(buffer, line, column):
 	pair_line = vim.current.buffer[vim.current.window.cursor[0]-1]
 	vim.current.window.cursor = (line, column)
 	return pair_line
+
+def get_prev_nonempty_line():
+    for line in reversed(get_buffer_before_cursor().split('\n')):
+        if line.strip() == "":
+            continue
+        return line
+    return ""
