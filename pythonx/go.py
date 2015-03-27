@@ -280,6 +280,16 @@ def get_package_name_from_file(path):
 def is_if_bracket(buffer, line, column):
     return util.get_pair_line(buffer, line, column).strip().startswith("if")
 
+def is_return_argument(buffer, line, column):
+    return buffer[line-1].strip().startswith('return ')
+
+def is_in_err_condition(buffer, line, column):
+    prev_line = buffer[line-2]
+    if prev_line.strip().startswith('if err != nil'):
+        return buffer[line-1].strip().startswith('return ')
+    else:
+        return False
+
 def is_struct_bracket(buffer, line, column):
     is_struct_def = re.match("^type \w+ struct",
         util.get_pair_line(buffer, line, column))
