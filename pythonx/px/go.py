@@ -7,6 +7,7 @@ import subprocess
 import glob
 
 import util
+import all
 
 GOROOT = subprocess.check_output(['go', 'env', 'GOROOT']).strip()
 
@@ -23,7 +24,7 @@ GO_SYNTAX_ITEMS = [
 _imports_cache = {}
 
 def extract_prev_method_binding_for_cursor():
-    search_space = util.get_buffer_before_cursor()
+    search_space = all.get_buffer_before_cursor()
 
     def extract_from_type_definition():
         matches = re.findall(r'(?m)^type (\w+) ', search_space)
@@ -61,7 +62,7 @@ def guess_package_name_from_file_name(path):
 
 
 def get_previous_slice_usage():
-    search_space = util.get_buffer_before_cursor()
+    search_space = all.get_buffer_before_cursor()
     matches = re.findall(r'(\w+)\[', search_space)
 
     if matches:
@@ -85,139 +86,6 @@ def split_parenthesis():
     ]
 
     buffer[line_number-1] = line[:first_parenthesis+1]
-
-
-def cycle_by_var_name(identifiers=[]):
-    line_number, column_number = vim.current.window.cursor
-
-    identifier = get_identifier_under_cursor()
-    new_identifier_data = get_last_used_var(identifier, identifiers)
-
-    if not new_identifier_data:
-        return
-
-    (new_identifier, new_identifier_line, new_identifier_column) = \
-        new_identifier_data
-
-    buffer = vim.current.window.buffer
-    line = buffer[line_number-1]
-
-    if column_number-len(identifier) >= 0:
-        buffer[line_number-1] = line[:column_number-len(identifier)]
-    else:
-        buffer[line_number-1] = ""
-
-    buffer[line_number-1] += new_identifier + line[column_number:]
-
-    vim.current.window.cursor = (
-        line_number,
-        column_number-len(identifier)+len(new_identifier)
-    )
-
-    util.highlight(
-        new_identifier_line,
-        new_identifier_column,
-        len(new_identifier)
-    )
-
-    return new_identifier
-
-
-def get_last_var_for_snippet():
-    identifier_data = get_last_used_var(
-        identifiers=get_last_defined_identifiers()
-    )
-
-    if identifier_data:
-        return identifier_data[0]
-    else:
-        return ''
-
-
-def get_last_used_var(prev_var='', identifiers=[]):
-    if not identifiers:
-        identifiers = get_all_last_used_identifiers()
-
-    if prev_var:
-        prev_var_match_found = False
-    else:
-        prev_var_match_found = True
-
-    walked = {'_': True}
-    for identifier_data in identifiers:
-        (identifier, line, column) = identifier_data
-
-        syntax_name = util.get_syntax_name(line, column)
-
-        if (syntax_name in GO_SYNTAX_ITEMS):
-            continue
-
-        if identifier in walked:
-            continue
-
-        if prev_var and identifier.startswith(prev_var):
-            if prev_var != identifier:
-                return identifier_data
-
-        if prev_var_match_found:
-            return identifier_data
-
-        walked[identifier] = True
-
-        if (prev_var == identifier):
-            prev_var_match_found = True
-
-
-def get_all_last_used_identifiers():
-    search_space = util.get_buffer_before_cursor()
-    line_number, _ = vim.current.window.cursor
-    identifiers = []
-
-    for line in reversed(search_space.split('\n')):
-        line_number -= 1
-        matches = re.finditer(r'([\w.]+)(?![\w.]*\()', line)
-
-        if not matches:
-            continue
-
-        for match in reversed(list(matches)):
-            identifier = match.groups(1)[0]
-            identifiers.append((identifier, line_number, match.start(1)+1))
-
-    return identifiers
-
-
-def get_last_defined_identifiers():
-    search_space = util.get_buffer_before_cursor()
-    line_number, _ = vim.current.window.cursor
-    identifiers = []
-
-    for line in reversed(search_space.split('\n')):
-        line_number -= 1
-        matches = re.finditer(r'([\w.]+)(?=[\w., ]*:?=)|(\w+)(?=\s+\S+[,)])', line)
-
-        if not matches:
-            continue
-
-        for match in reversed(list(matches)):
-            group_id = 1
-            if not match.group(group_id):
-                group_id = 2
-            identifier = match.group(group_id)
-            identifiers.append((identifier, line_number, match.start(group_id)+1))
-
-    return identifiers
-
-
-def get_identifier_under_cursor():
-    line_number, column_number = vim.current.window.cursor
-    line = vim.current.window.buffer[line_number-1][:column_number]
-    matches = re.search('([\w.]+)$', line)
-
-    if not matches:
-        return ""
-
-    return matches.group(1)
 
 
 def get_imports():
@@ -277,11 +145,14 @@ def get_package_name_from_file(path):
             if line.startswith('package '):
                 return line.split(' ')[1].strip()
 
+
 def is_if_bracket(buffer, line, column):
-    return util.get_pair_line(buffer, line, column).strip().startswith("if")
+    return all.get_pair_line(buffer, line, column).strip().startswith("if")
+
 
 def is_return_argument(buffer, line, column):
     return buffer[line-1].strip().startswith('return ')
+
 
 def is_in_err_condition(buffer, line, column):
     prev_line = buffer[line-2]
@@ -290,15 +161,20 @@ def is_in_err_condition(buffer, line, column):
     else:
         return False
 
+
 def is_struct_bracket(buffer, line, column):
     is_struct_def = re.match("^type \w+ struct",
-        util.get_pair_line(buffer, line, column))
+        all.get_pair_line(buffer, line, column))
     is_method_def = re.match("^func \(\w+ \w+\) ",
-        util.get_pair_line(buffer, line, column))
+        all.get_pair_line(buffer, line, column))
     return is_struct_def or is_method_def
 
+
 def autoimport():
-    identifier = get_identifier_under_cursor()
+    identifier, _ = util.get_identifier_under_cursor(
+        vim.current.buffer,
+        vim.current.window.cursor,
+    )
     if identifier.count('.') > 1:
         return
     possible_package = identifier.split('.')[0]
@@ -307,11 +183,13 @@ def autoimport():
         return
     vim.command('GoImport {}'.format(import_path))
 
+
 def get_import_path_for_identifier(identifier):
     imports = get_all_imports()
     if identifier not in imports:
         return None
     return imports[identifier]
+
 
 # @TODO: create cache function wrapper
 def get_all_imports():
