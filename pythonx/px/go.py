@@ -171,16 +171,27 @@ def is_struct_bracket(buffer, line, column):
 
 
 def autoimport():
-    identifier, _ = util.get_identifier_under_cursor(
+    if vim.eval('go#complete#GetInfo()') != "":
+        return
+
+    identifier_data = util.get_identifier_under_cursor(
         vim.current.buffer,
         vim.current.window.cursor,
     )
+
+    if not identifier_data:
+        return
+
+    identifier, _ = identifier_data
+
     if identifier.count('.') > 1:
         return
+
     possible_package = identifier.split('.')[0]
     import_path = get_import_path_for_identifier(possible_package)
     if not import_path:
         return
+
     vim.command('GoImport {}'.format(import_path))
 
 

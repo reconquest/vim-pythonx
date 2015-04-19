@@ -4,7 +4,7 @@ import re
 
 def get_last_used_var(identifiers, previous_match=None, should_skip=None):
     if not should_skip:
-        should_skip = lambda _: False
+        should_skip = lambda *_: False
 
     if previous_match:
         prev_var_match_found = False
@@ -85,7 +85,7 @@ def get_defined_identifiers(
     line_number, _ = cursor
     identifiers = []
 
-    for line in buffer:
+    for line in reversed(buffer[:line_number-1]):
         line_number -= 1
         matches = re.finditer(pattern, line)
 
@@ -138,4 +138,3 @@ def get_prev_nonempty_line(buffer, cursor_line):
             continue
         return line
     return ""
-

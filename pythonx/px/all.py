@@ -80,7 +80,7 @@ def cycle_by_var_name(
             identifiers.pop(0)
 
     if not should_skip:
-        should_skip = lambda id_data: get_syntax_name(id_data[1]) != ''
+        should_skip = lambda *id_data: get_syntax_name(id_data[1]) != ''
 
     previous_match = None
     identifier = ''
@@ -121,19 +121,6 @@ def cycle_by_var_name(
     return new_identifier
 
 
-def get_last_var_for_snippet():
-    identifier_data = util.get_last_used_var(
-        identifiers=util.get_defined_identifiers(
-            vim.current.window.buffer,
-            vim.current.window.cursor,
-        )
-    )
-
-    if identifier_data:
-        return identifier_data[0]
-    else:
-        return ''
-
 def wrap_for_filetype(function_name):
     all_module = module = importlib.import_module('px.all')
     try:
@@ -146,3 +133,17 @@ def wrap_for_filetype(function_name):
         return getattr(module, function_name)
     except AttributeError:
         return getattr(all_module, function_name)
+
+
+def get_last_var_for_snippet():
+    identifier_data = util.get_last_used_var(
+        identifiers=util.get_defined_identifiers(
+            vim.current.window.buffer,
+            vim.current.window.cursor,
+        )
+    )
+
+    if identifier_data:
+        return identifier_data[0]
+    else:
+        return ''
