@@ -15,7 +15,7 @@ def get_last_used_var(identifiers, previous_match=None, should_skip=None):
     for identifier_data in identifiers:
         (identifier, (line, column)) = identifier_data
 
-        if should_skip(identifier_data):
+        if should_skip(*identifier_data):
             continue
 
         if identifier in walked:

@@ -47,7 +47,7 @@ def get_identifier_from_string(string, with_dollar=True):
     else:
         return identifier
 
-def php_highlight(cursor, identifier):
+def highlight(cursor, identifier):
     under_cursor = vim.current.buffer[cursor[0]-1][cursor[1]-1:]
     if not under_cursor.startswith(identifier):
         identifier = identifier.replace('$this->', '$')
@@ -60,11 +60,11 @@ def cycle_by_var_name(
     pattern=IDENTIFIERS_RE,
     extract=_prepend_this_to_var_name,
     should_skip=None,
-    highlighting=php_highlight,
+    highlighting=highlight,
 ):
     if not should_skip:
-        should_skip = lambda (_, (line, column)): all.get_syntax_name(
-            (line, column + 1)) != 'Identifier'
+        def should_skip(_, (line, column)):
+            return all.get_syntax_name((line, column + 1)) != 'Identifier'
     return all.cycle_by_var_name(
         identifiers, pattern, extract, should_skip, highlighting
     )
