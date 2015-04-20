@@ -39,9 +39,15 @@ def get_possible_identifiers(buffer, cursor):
     return identifiers
 
 def get_identifier_from_string(string, with_dollar=True):
-    identifier = util.get_identifier_from_string(string, '(\$[\w_\->]+)')
+    (identifier, _) = util.get_identifier_from_string(
+            string,
+            '(\$[\w_\->]+)',
+            extract=lambda m: (m.group(1), m.start(1))
+    )
+
     if not identifier:
         return None
+
     if with_dollar == False and identifier[0] == '$':
         return identifier[1:]
     else:
@@ -74,7 +80,7 @@ def get_identifier_under_cursor(buffer, cursor, with_dollar=True):
     (line_number, column_number) = cursor
     line = buffer[line_number-1][:column_number]
 
-    identifier = get_identifier_from_string(line, with_dollar)
+    (identifier, _) = get_identifier_from_string(line, with_dollar)
     if identifier:
         return (identifier, (line_number, column_number - len(identifier) + 1))
     else:
@@ -97,6 +103,7 @@ def get_camelcase_identifier_from_string(string, with_dollar=True):
     `protected $_storage;`
     returns just `Storage`
     """
+
     return smart_convert_to_camelcase(get_identifier_from_string(string, with_dollar))
 
 def get_phpdoc_variables_before_cursor():
