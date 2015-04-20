@@ -135,3 +135,6 @@ def get_phpdoc_variables_before_cursor():
             variables[name] = value
 
     return variables
+
+def get_last_var_for_snippet():
+    return all.get_last_var_for_snippet(IDENTIFIERS_RE)

@@ -79,8 +79,7 @@ def get_possible_identifiers(
 
 
 def get_defined_identifiers(
-    buffer, cursor,
-    pattern=r'([\w.]+)(?=[\w., ]*:?=)|(\w+)(?=\s+\S+[,)])'
+    buffer, cursor, pattern
 ):
     line_number, _ = cursor
     identifiers = []

@@ -6,6 +6,7 @@ import util
 import importlib
 import highlight
 
+IDENTIFIERS_RE=r'([\w.]+)(?=[\w., ]*:?=)|(\w+)(?=\s+\S+[,)])'
 
 def get_buffer_before_cursor():
     cursor = vim.current.window.cursor
@@ -135,11 +136,12 @@ def wrap_for_filetype(function_name):
         return getattr(all_module, function_name)
 
 
-def get_last_var_for_snippet():
+def get_last_var_for_snippet(pattern=IDENTIFIERS_RE):
     identifier_data = util.get_last_used_var(
         identifiers=util.get_defined_identifiers(
             vim.current.window.buffer,
             vim.current.window.cursor,
+            pattern
         )
     )
 
