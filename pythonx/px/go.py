@@ -171,7 +171,8 @@ def is_struct_bracket(buffer, line, column):
 
 
 def autoimport():
-    if vim.eval('go#complete#GetInfo()') != "":
+    info = vim.eval('go#complete#GetInfo()')
+    if info != "" and re.match("^var \w+", info):
         return
 
     identifier_data = util.get_identifier_under_cursor(
