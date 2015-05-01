@@ -151,6 +151,6 @@ def get_last_var_for_snippet(pattern=IDENTIFIERS_RE):
         return ''
 
 def get_buffer_line():
-	line, _ = vim.current.window.cursor
-	buffer = vim.current.buffer
-	return buffer, line
+    line, _ = vim.current.window.cursor
+    buffer = vim.current.buffer
+    return buffer, line
