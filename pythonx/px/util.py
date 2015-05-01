@@ -2,6 +2,7 @@
 
 import re
 
+
 def get_last_used_var(identifiers, previous_match=None, should_skip=None):
     if not should_skip:
         should_skip = lambda *_: False
@@ -33,6 +34,7 @@ def get_last_used_var(identifiers, previous_match=None, should_skip=None):
         if previous_match == identifier_data:
             prev_var_match_found = True
 
+
 def get_identifier_from_string(line, pattern, extract):
     matches = re.search(pattern, line)
 
@@ -53,6 +55,7 @@ def get_identifier_under_cursor(
         return (identifier, (line_number, start_at + 1))
     else:
         return None
+
 
 def get_possible_identifiers(
     buffer, cursor,
@@ -131,9 +134,24 @@ def match_higher_indent(buffer, cursor, pattern):
 def get_indentation(line):
     return len(line) - len(line.lstrip())
 
+
 def get_prev_nonempty_line(buffer, cursor_line):
     for line in reversed(buffer[:cursor_line-1]):
         if line.strip() == "":
             continue
         return line
     return ""
+
+
+def ensure_newlines(buffer, line_number, amount):
+    for line in reversed(buffer[:line_number]):
+        if line != '':
+            break
+
+        if amount <= 0:
+            break
+
+        amount -= 1
+        line_number -= 1
+
+    return line_number, amount

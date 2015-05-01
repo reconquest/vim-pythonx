@@ -8,6 +8,7 @@ import highlight
 
 IDENTIFIERS_RE=r'([\w.]+)(?=[\w., ]*:?=)|(\w+)(?=\s+\S+[,)])'
 
+
 def get_buffer_before_cursor():
     cursor = vim.current.window.cursor
     line_number = cursor[0]
@@ -54,6 +55,7 @@ def get_pair_line(buffer, line, column):
     pair_line = vim.current.buffer[vim.current.window.cursor[0]-1]
     vim.current.window.cursor = (line, column)
     return pair_line
+
 
 def default_highlight((line, column), string):
     return highlight.highlight(line, column, len(string))
@@ -150,7 +152,13 @@ def get_last_var_for_snippet(pattern=IDENTIFIERS_RE):
     else:
         return ''
 
+
 def get_buffer_line():
     line, _ = vim.current.window.cursor
     buffer = vim.current.buffer
     return buffer, line
+
+
+def ensure_newlines(buffer, cursor, amount):
+    before, how_much = util.ensure_newlines(buffer, cursor[0] - 1, amount)
+    buffer[before:before] = [''] * how_much
