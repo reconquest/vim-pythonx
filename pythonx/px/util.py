@@ -115,7 +115,7 @@ def get_higher_ident(buffer, cursor):
             continue
         line_indent = get_indentation(line)
         if current_indent > line_indent:
-            return (line, line_number)
+            return (line.strip(), line_number)
 
     return None
 
