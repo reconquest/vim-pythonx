@@ -105,7 +105,7 @@ def get_defined_identifiers(
 
 
 
-def get_higher_ident(buffer, cursor):
+def get_higher_indent(buffer, cursor):
     line_number, _ = cursor
 
     current_indent = get_indentation(buffer[line_number-1])
@@ -123,7 +123,7 @@ def get_higher_ident(buffer, cursor):
 def match_higher_indent(buffer, cursor, pattern):
     line_number, _ = cursor
     while True:
-        indent = get_higher_ident(buffer, (line_number, 0))
+        indent = get_higher_indent(buffer, (line_number, 0))
         if not indent:
             return
         line, line_number = indent
