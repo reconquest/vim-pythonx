@@ -256,14 +256,14 @@ def get_bracket_line(buffer, line):
 
 
 def is_type_declaration(buffer, line):
-	bracket_line = get_bracket_line(buffer, line)
-	if not bracket_line:
+    bracket_line = get_bracket_line(buffer, line)
+    if not bracket_line:
             return False
 
-	bracket_line_contents = buffer[bracket_line-1]
-	if bracket_line_contents.strip().startswith('type '):
+    bracket_line_contents = buffer[bracket_line-1]
+    if bracket_line_contents.strip().startswith('type '):
             return True
-	else:
+    else:
             return False
 
 
@@ -289,9 +289,65 @@ def is_func_declaration(buffer, line):
                 return False
         else:
             if func:
-                    return True
+                return True
 
         if line == 0:
             return False
 
         line = line - 1
+
+
+const_re = re.compile('^const ')
+type_re = re.compile('^type ')
+var_re = re.compile('^var ')
+func_re = re.compile('^func ')
+
+
+def move_cursor(line, column):
+    vim.command("normal " + str(line) + "gg")
+    vim.command("normal " + str(column) + "|")
+
+
+def goto_re(regexp):
+    buffer = vim.current.buffer
+
+    line_number = 0
+    for line in buffer:
+        line_number += 1
+        if regexp.match(line):
+            move_cursor(line_number, 0)
+            return True
+
+    return None
+
+
+def goto_re_first_befor_cursor(regexp):
+    line_number, column_number = vim.current.window.cursor
+    buffer = vim.current.buffer
+
+    while True:
+        line = buffer[line_number - 1]
+        if regexp.match(line.strip()):
+           move_cursor(line_number, 0)
+
+        line_number -= 1
+        if line_number == 1:
+            return None
+
+    return None
+
+
+def goto_const():
+    return goto_re(const_re) or goto_re(func_re)
+
+
+def goto_type():
+    return goto_re(type_re) or goto_re(func_re)
+
+
+def goto_var():
+    return goto_re(var_re) or goto_re(func_re)
+
+
+def goto_prev_var():
+    return goto_re_first_befor_cursor(var_re)
