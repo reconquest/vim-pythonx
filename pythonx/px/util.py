@@ -108,14 +108,14 @@ def get_defined_identifiers(
 def get_higher_indent(buffer, cursor):
     line_number, _ = cursor
 
-    current_indent = get_indentation(buffer[line_number-1])
-    for line in reversed(buffer[:line_number-1]):
+    current_indent, _ = get_indentation(buffer[line_number])
+    for line in reversed(buffer[:line_number]):
         line_number -= 1
         if line == '':
             continue
-        line_indent = get_indentation(line)
+        line_indent, _ = get_indentation(line)
         if current_indent > line_indent:
-            return (line.strip(), line_number)
+            return (line, line_number)
 
     return None
 
@@ -127,12 +127,24 @@ def match_higher_indent(buffer, cursor, pattern):
         if not indent:
             return
         line, line_number = indent
-        if re.search(pattern, line):
+        if re.search(pattern, line.strip()):
             return indent
 
+def match_exact_indent(buffer, cursor, amount, pattern):
+    for line_number in range(cursor[0], len(buffer)):
+        line = buffer[line_number]
+        print('match_exact_indent', line_number, line )
+        line_indent, _ = get_indentation(line)
+        if line_indent != amount:
+            continue
+        if re.search(pattern, line):
+            return (line_number, 0)
+
+    return None
 
 def get_indentation(line):
-    return len(line) - len(line.lstrip())
+    indent = len(line) - len(line.lstrip())
+    return indent, line[:indent]
 
 
 def get_prev_nonempty_line(buffer, cursor_line):
@@ -155,3 +167,21 @@ def ensure_newlines(buffer, line_number, amount):
         line_number -= 1
 
     return line_number, amount
+
+def get_next_nonempty_line(buffer, cursor_line):
+    cursor_line += 1
+    for line in buffer[cursor_line:]:
+        if line.strip() == "":
+            cursor_line += 1
+            continue
+        return line, cursor_line
+    return "", 0
+
+def to_vim_cursor(cursor):
+    return (cursor[0]+1, cursor[1]+1)
+
+def from_vim_cursor(cursor):
+    return (cursor[0]-1, cursor[1]-1)
+
+def insert_lines_before(buffer, cursor, lines):
+    buffer[cursor[0]:cursor[0]] = lines

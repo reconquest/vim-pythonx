@@ -160,5 +160,15 @@ def get_buffer_line():
 
 
 def ensure_newlines(buffer, cursor, amount):
-    before, how_much = util.ensure_newlines(buffer, cursor[0] - 1, amount)
+    before, how_much = util.ensure_newlines(buffer, cursor[0], amount)
     buffer[before:before] = [''] * how_much
+
+def ensure_indent(buffer, cursor, indent):
+    if vim.eval('&et') == "1":
+        indent_symbol = ' ' * int(vim.eval('&sw'))
+    else:
+        indent_symbol = '\t'
+
+    buffer[cursor[0]] = indent_symbol * indent
+
+    return (cursor[0], len(buffer[cursor[0]]))
