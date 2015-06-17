@@ -10,6 +10,7 @@ import util
 import all
 
 GOROOT = subprocess.check_output(['go', 'env', 'GOROOT']).strip()
+GOPATH = subprocess.check_output(['go', 'env', 'GOPATH']).strip()
 
 GO_SYNTAX_ITEMS = [
     'String',
@@ -117,12 +118,7 @@ def get_imports():
 
 
 def path_to_import_name(path):
-    goroot = os.environ.get('GOROOT')
-    if not goroot:
-        goroot = GOROOT
-
-    gopath = os.environ['GOPATH']
-    gopath += ":" + goroot
+    gopath = GOROOT + ":" + GOPATH
 
     for lib_path in gopath.split(':'):
         gofiles = glob.glob(os.path.join(lib_path, "src", path, "*.go"))
@@ -210,12 +206,7 @@ def get_all_imports():
     if _imports_cache:
         return _imports_cache
 
-    goroot = os.environ.get('GOROOT')
-    if not goroot:
-        goroot = GOROOT
-
-    gopath = os.environ['GOPATH']
-    gopath += ":" + goroot
+    gopath = GOROOT + ":" + GOPATH
 
     _imports_cache = {}
 
@@ -252,7 +243,7 @@ def get_all_imports():
             import_path = root[len(src_dir)+1:]
 
             # fix for standard libraries
-            if lib_path == goroot and import_path[:4] == "pkg/":
+            if lib_path == GOROOT and import_path[:4] == "pkg/":
                 import_path = import_path[4:]
 
             _imports_cache[package_name] = import_path
