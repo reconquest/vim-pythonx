@@ -221,25 +221,38 @@ def get_all_imports():
 
     for lib_path in gopath.split(':'):
         src_dir = os.path.join(lib_path, "src")
-        some_gofile_found = False
+        gofile = None
+        last_package_path = None
         for root, dirs, files in os.walk(src_dir):
-            for file_name in [f for f in files if f.endswith('.go') and
-                    not f.endswith('_test.go')]:
-                some_gofile_found = True
-                full_file_name = os.path.join(root, file_name)
-                package_name = get_package_name_from_file(full_file_name)
-                # +1 stands for /
-                import_path = root[len(src_dir)+1:]
-                if lib_path == goroot and import_path[:4] == "pkg/":
-                    import_path = import_path[4:]
-                _imports_cache[package_name] = import_path
-                break
-            else:
-                # if in parent directory was some go-files and in current
-                # directory are none, we should not descend any further
-                if some_gofile_found:
-                    some_gofile_found = False
+            dirs[:] = [dir_name for dir_name in dirs
+                if dir_name not in ['.git', '.hg', '.svn']
+            ]
+
+            for file_name in files:
+                if file_name.endswith('_test.go'):
+                    continue
+
+                if file_name.endswith('.go'):
+                    gofile = file_name
+
+            if not gofile:
+                if last_package_path and root.startswith(last_package_path):
                     dirs[:] = []
+                continue
+
+            full_file_name = os.path.join(root, gofile)
+            package_name = get_package_name_from_file(full_file_name)
+
+            # +1 stands for /
+            import_path = root[len(src_dir)+1:]
+            if lib_path == goroot and import_path[:4] == "pkg/":
+                import_path = import_path[4:]
+
+            _imports_cache[package_name] = import_path
+
+            gofile = None
+            if not (last_package_path and root.startswith(last_package_path)):
+                last_package_path = root
 
     return _imports_cache
 
