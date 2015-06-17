@@ -51,9 +51,10 @@ def paste(content):
 
 
 def get_pair_line(buffer, line, column):
+    old_pos = vim.current.window.cursor
     vim.command("normal %")
     pair_line = vim.current.buffer[vim.current.window.cursor[0]-1]
-    vim.current.window.cursor = (line, column)
+    vim.current.window.cursor = old_pos
     return pair_line
 
 
