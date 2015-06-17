@@ -224,10 +224,13 @@ def get_all_imports():
         gofile = None
         last_package_path = None
         for root, dirs, files in os.walk(src_dir):
+            # dir[:] is required because of it's not a simple slice, but special
+            # object, which is used to control recursion in os.walk()
             dirs[:] = [dir_name for dir_name in dirs
                 if dir_name not in ['.git', '.hg', '.svn']
             ]
 
+            # get the first proper go file
             for file_name in files:
                 if file_name.endswith('_test.go'):
                     continue
@@ -235,6 +238,8 @@ def get_all_imports():
                 if file_name.endswith('.go'):
                     gofile = file_name
 
+            # if no go files found and parent directory already has a package,
+            # skip all hierarchy
             if not gofile:
                 if last_package_path and root.startswith(last_package_path):
                     dirs[:] = []
@@ -245,12 +250,16 @@ def get_all_imports():
 
             # +1 stands for /
             import_path = root[len(src_dir)+1:]
+
+            # fix for standard libraries
             if lib_path == goroot and import_path[:4] == "pkg/":
                 import_path = import_path[4:]
 
             _imports_cache[package_name] = import_path
 
             gofile = None
+
+            # remember top-level package directory
             if not (last_package_path and root.startswith(last_package_path)):
                 last_package_path = root
 
