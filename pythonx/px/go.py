@@ -376,3 +376,15 @@ def goto_var():
 
 def goto_prev_var():
     return goto_re_first_befor_cursor(var_re)
+
+
+def is_before_first_func(buffer, line):
+    line_iter = 0
+    while line_iter <= line:
+        if buffer[line_iter][:5] == 'func ':
+            return False
+
+        line_iter += 1
+
+    return True
+
