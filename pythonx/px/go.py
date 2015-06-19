@@ -388,3 +388,64 @@ def is_before_first_func(buffer, line):
 
     return True
 
+
+def get_gocode_complete(full = True):
+    info = gocode_get_info()
+    if not info:
+        return ""
+
+    line_number, _ = vim.current.window.cursor
+    function_name = vim.current.buffer[line_number - 1].strip()
+
+    # removing 'func '
+    info = info[5:]
+
+    if info[-1] == ')':
+        body_func, body_return = info.rsplit(') (', 2)
+        _, body_args_func = body_func.split('(', 2)
+
+        # removing last ')'
+        body_return = body_return[:-1]
+    else:
+        body_func, body_return = info.rsplit(')', 2)
+        _, body_args_func = body_func.split('(', 2)
+
+    args_return = body_return.strip().split(', ')
+    args_func = body_args_func.strip().split(', ')
+
+    placeholder = 1
+
+    snippet_return_parts = []
+    for arg in args_return:
+        snippet_return_parts.append('${' + str(placeholder) + ':' + arg + '}')
+        placeholder += 1
+
+    snippet_return = ', '.join(snippet_return_parts)
+
+    if not full:
+        placeholder = 1
+
+    snippet_func_parts = []
+    for arg in args_func:
+        snippet_func_parts.append('${' + str(placeholder) + ':' + arg + '}')
+        placeholder += 1
+
+    snippet_func = function_name + '(' + ', '.join(snippet_func_parts) + ')'
+
+    if not full:
+        return (snippet_return, snippet_func)
+
+    snippet = snippet_return + ' := ' + snippet_func
+
+    return snippet
+
+
+def gocode_can_complete():
+    info = gocode_get_info()
+    if not info:
+        return False
+
+    return True
+
+def gocode_get_info():
+    return vim.eval('go#complete#GetInfo()')
