@@ -448,4 +448,8 @@ def gocode_can_complete():
     return True
 
 def gocode_get_info():
-    return vim.eval('go#complete#GetInfo()')
+    line, column = vim.current.window.cursor
+    vim.current.window.cursor = (line, column - 1)
+    info = vim.eval('go#complete#GetInfo()')
+    vim.current.window.cursor = (line, column)
+    return info
