@@ -76,7 +76,7 @@ def split_parenthesis():
     line_number, column_number = vim.current.window.cursor
     buffer = vim.current.buffer
     line = buffer[line_number-1]
-    first_parenthesis = line.find('(')
+    first_parenthesis = line.rfind('(', 0, column_number)
     last_parenthesis = line.rfind(')')
     indent = len(line) - len(line.lstrip("\t"))
 
@@ -246,7 +246,11 @@ def get_all_imports():
             if lib_path == GOROOT and import_path[:4] == "pkg/":
                 import_path = import_path[4:]
 
-            _imports_cache[package_name] = import_path
+            if package_name in _imports_cache:
+                if len(import_path) < len(_imports_cache[package_name]):
+                    _imports_cache[package_name] = import_path
+            else:
+                _imports_cache[package_name] = import_path
 
             gofile = None
 
