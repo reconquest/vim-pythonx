@@ -147,13 +147,13 @@ def is_if_bracket(buffer, line, column):
 
 
 def is_return_argument(buffer, line, column):
-    return buffer[line-1].strip().startswith('return ')
+    return buffer[line].strip().startswith('return ')
 
 
 def is_in_err_condition(buffer, line, column):
-    prev_line = buffer[line-2]
+    prev_line = buffer[line-1]
     if re.search('^if .*err != nil', prev_line.strip()):
-        return buffer[line-1].strip().startswith('return ')
+        return buffer[line].strip().startswith('return ')
     else:
         return False
 
@@ -258,7 +258,7 @@ def get_all_imports():
 
 def get_bracket_line(buffer, line):
     while True:
-        line_contents = buffer[line - 1]
+        line_contents = buffer[line]
         if re.search(' {$', line_contents):
                 return line
 
@@ -273,8 +273,20 @@ def is_type_declaration(buffer, line):
     if not bracket_line:
             return False
 
-    bracket_line_contents = buffer[bracket_line-1]
+    bracket_line_contents = buffer[bracket_line]
     if bracket_line_contents.strip().startswith('type '):
+            return True
+    else:
+            return False
+
+
+def is_switch(buffer, line):
+    bracket_line = get_bracket_line(buffer, line)
+    if not bracket_line:
+            return False
+
+    bracket_line_contents = buffer[bracket_line]
+    if bracket_line_contents.strip().startswith('switch '):
             return True
     else:
             return False
@@ -284,7 +296,7 @@ def is_func_declaration(buffer, line):
     current_line = line
 
     while True:
-        line_contents = buffer[line - 1]
+        line_contents = buffer[line]
 
         bracket = False
         if re.search(' {$', line_contents):

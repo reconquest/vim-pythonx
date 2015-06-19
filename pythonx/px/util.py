@@ -148,7 +148,7 @@ def get_indentation(line):
 
 
 def get_prev_nonempty_line(buffer, cursor_line):
-    for line in reversed(buffer[:cursor_line-1]):
+    for line in reversed(buffer[:cursor_line]):
         if line.strip() == "":
             continue
         return line
