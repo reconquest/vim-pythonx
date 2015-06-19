@@ -39,7 +39,7 @@ def extract_prev_method_binding_for_cursor():
             return None
 
     def extract_from_method_definition():
-        matches = re.findall(r'(?m)^func \(([^)]+)\s+([^)]+)\) ', search_space)
+        matches = re.findall(r'(?m)^func \(([^)]+)\s+\*?([^)]+)\) ', search_space)
 
         if matches != []:
             return matches[-1]
