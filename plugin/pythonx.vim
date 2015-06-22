@@ -3,7 +3,7 @@ py import px.all
 augroup vim_pythonx_go
     au!
     au FileType go py import px.go
-    au FileType go inoremap <buffer> . <C-\><C-O>:py px.go.autoimport()<CR>.
+    au FileType go inoremap <silent> <buffer> . <C-\><C-O>:py px.go.autoimport()<CR>.
 
     au FileType go :autocmd! vim_pythonx_go CursorMovedI <buffer>
         \ call PxCompleteVarResetState('CursorMovedI')
@@ -17,7 +17,7 @@ augroup vim_pythonx_php
     au FileType php py import px.php
 augroup END
 
-inoremap <C-L> <C-\><C-O>:call PxCompleteVar()<CR>
+inoremap <silent> <C-L> <C-\><C-O>:call PxCompleteVar()<CR>
 smap <C-L> <BS><C-L>
 
 let g:_px_go_complete_var_should_skip_cursor_moved_i = 0
