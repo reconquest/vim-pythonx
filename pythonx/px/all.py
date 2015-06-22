@@ -7,6 +7,12 @@ import importlib
 import highlight
 
 IDENTIFIERS_RE=r'([\w.]+)(?=[\w., ]*:?=)|(\w+)(?=\s+\S+[,)])'
+COMPLETE_VAR_STATE=''
+
+
+def reset_complete_var_state():
+    global COMPLETE_VAR_STATE
+    COMPLETE_VAR_STATE = ''
 
 
 def get_buffer_before_cursor():
@@ -63,13 +69,15 @@ def default_highlight((line, column), string):
     return highlight.highlight(line, column, len(string))
 
 
-def cycle_by_var_name(
+def complete_var(
     identifiers=[],
     pattern='([\w.]+)(?![\w.]*\()',
     extract=lambda m: (m.group(1), m.start(1)),
     should_skip=None,
     highlighting=default_highlight
 ):
+    global COMPLETE_VAR_STATE
+
     buffer = vim.current.window.buffer
     cursor = vim.current.window.cursor
 
@@ -91,10 +99,19 @@ def cycle_by_var_name(
     identifier = ''
     if identifier_data:
         (identifier, _) = identifier_data
-        if highlight.get():
-            previous_match = (identifier, highlight.get()[-1][0])
-        else:
-            previous_match = identifier_data
+        if COMPLETE_VAR_STATE != '':
+            if highlight.get():
+                previous_match = (identifier, highlight.get()[-1][0])
+            else:
+                previous_match = identifier_data
+
+    if identifier != '' and COMPLETE_VAR_STATE == '':
+        COMPLETE_VAR_STATE = identifier
+
+    if COMPLETE_VAR_STATE != '':
+        should_skip_default = should_skip
+        should_skip = lambda *id_data: should_skip_default(*id_data) or \
+                not re.match(r'^' + COMPLETE_VAR_STATE, id_data[0])
 
     new_identifier_data = util.get_last_used_var(
         identifiers, previous_match, should_skip
