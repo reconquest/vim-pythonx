@@ -400,7 +400,7 @@ def get_gocode_complete(full = True):
     # removing 'func '
     info = info[5:]
 
-    if info[-1] == ')':
+    if info[-1] == ')' and len(info.rsplit(') (', 2)) == 2:
         body_func, body_return = info.rsplit(') (', 2)
         _, body_args_func = body_func.split('(', 2)
 
@@ -410,17 +410,20 @@ def get_gocode_complete(full = True):
         body_func, body_return = info.rsplit(')', 2)
         _, body_args_func = body_func.split('(', 2)
 
-    args_return = body_return.strip().split(', ')
     args_func = body_args_func.strip().split(', ')
 
     placeholder = 1
 
-    snippet_return_parts = []
-    for arg in args_return:
-        snippet_return_parts.append('${' + str(placeholder) + ':' + arg + '}')
-        placeholder += 1
+    returns_exists = body_return != ""
+    if returns_exists:
+        args_return = body_return.strip().split(', ')
 
-    snippet_return = ', '.join(snippet_return_parts)
+        snippet_return_parts = []
+        for arg in args_return:
+            snippet_return_parts.append('${' + str(placeholder) + ':' + arg + '}')
+            placeholder += 1
+
+        snippet_return = ', '.join(snippet_return_parts)
 
     if not full:
         placeholder = 1
@@ -433,9 +436,14 @@ def get_gocode_complete(full = True):
     snippet_func = function_name + '(' + ', '.join(snippet_func_parts) + ')'
 
     if not full:
-        return (snippet_return, snippet_func)
+        if returns_exists:
+            return (snippet_return, snippet_func)
+        return ("", snippet_func)
 
-    snippet = snippet_return + ' := ' + snippet_func
+    if returns_exists:
+        snippet = snippet_return + ' := ' + snippet_func
+    else:
+        snippet = snippet_func
 
     return snippet
 
