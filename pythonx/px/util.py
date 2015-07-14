@@ -133,7 +133,6 @@ def match_higher_indent(buffer, cursor, pattern):
 def match_exact_indent(buffer, cursor, amount, pattern):
     for line_number in range(cursor[0], len(buffer)):
         line = buffer[line_number]
-        print('match_exact_indent', line_number, line )
         line_indent, _ = get_indentation(line)
         if line_indent != amount:
             continue
