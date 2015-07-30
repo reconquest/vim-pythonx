@@ -6,7 +6,7 @@ import util
 import importlib
 import highlight
 
-IDENTIFIERS_RE=r'([\w.]+)(?=[\w., ]*:?=)|(\w+)(?=\s+\S+[,)])'
+IDENTIFIERS_RE = r'([\w.]+)(?=[\w., ]*:?=)|(\w+)(?=\s+\S+[,)])'
 COMPLETE_VAR_STATE=''
 
 
@@ -38,6 +38,10 @@ def get_syntax_name((line, column), filter=filter_rainbow_syntax):
     )
 
     return filter(syntax_name)
+
+
+def is_syntax_string(cursor):
+    return get_syntax_name(cursor) == 'String'
 
 
 def convert_camelcase_to_snakecase(name):
@@ -93,7 +97,8 @@ def complete_var(
             identifiers.pop(0)
 
     if not should_skip:
-        should_skip = lambda *id_data: get_syntax_name(id_data[1]) != ''
+        def should_skip(*identifier_data):
+            return get_syntax_name(identifier_data[1]) != ''
 
     previous_match = None
     identifier = ''
@@ -157,12 +162,31 @@ def wrap_for_filetype(function_name):
         return getattr(all_module, function_name)
 
 
-def get_last_var_for_snippet(pattern=IDENTIFIERS_RE):
+def get_last_defined_var_for_snippet(pattern=IDENTIFIERS_RE):
     identifier_data = util.get_last_used_var(
         identifiers=util.get_defined_identifiers(
             vim.current.window.buffer,
             vim.current.window.cursor,
             pattern
+        )
+    )
+
+    if identifier_data:
+        return identifier_data[0]
+    else:
+        return ''
+
+
+def get_last_used_var_for_snippet(
+    pattern='([\w.]+)(?![\w.]*\(|[\'"])',
+    extract=lambda m: (m.group(1), m.start(1))
+):
+    identifier_data = util.get_last_used_var(
+        identifiers=util.get_possible_identifiers(
+            vim.current.window.buffer,
+            vim.current.window.cursor,
+            pattern,
+            extract,
         )
     )
 
@@ -181,6 +205,7 @@ def get_buffer_line():
 def ensure_newlines(buffer, cursor, amount):
     before, how_much = util.ensure_newlines(buffer, cursor[0], amount)
     buffer[before:before] = [''] * how_much
+
 
 def ensure_indent(buffer, cursor, indent):
     if vim.eval('&et') == "1":

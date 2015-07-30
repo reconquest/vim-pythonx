@@ -121,6 +121,7 @@ def get_higher_indent(buffer, cursor):
 
 
 def match_higher_indent(buffer, cursor, pattern):
+    print(cursor, pattern)
     line_number, _ = cursor
     while True:
         indent = get_higher_indent(buffer, (line_number, 0))
@@ -128,6 +129,7 @@ def match_higher_indent(buffer, cursor, pattern):
             return
         line, line_number = indent
         if re.search(pattern, line.strip()):
+            print('result', indent)
             return indent
 
 def match_exact_indent(buffer, cursor, amount, pattern):
@@ -184,3 +186,13 @@ def from_vim_cursor(cursor):
 
 def insert_lines_before(buffer, cursor, lines):
     buffer[cursor[0]:cursor[0]] = lines
+
+
+def is_cursor_between(line, cursor, before, after):
+    if not re.search(before, line[:cursor[1]+1]):
+        return False
+
+    if not re.search(after, line[cursor[1]:]):
+        return False
+
+    return True
