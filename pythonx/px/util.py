@@ -121,7 +121,6 @@ def get_higher_indent(buffer, cursor):
 
 
 def match_higher_indent(buffer, cursor, pattern):
-    print(cursor, pattern)
     line_number, _ = cursor
     while True:
         indent = get_higher_indent(buffer, (line_number, 0))
@@ -129,7 +128,6 @@ def match_higher_indent(buffer, cursor, pattern):
             return
         line, line_number = indent
         if re.search(pattern, line.strip()):
-            print('result', indent)
             return indent
 
 def match_exact_indent(buffer, cursor, amount, pattern):

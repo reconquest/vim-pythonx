@@ -25,7 +25,6 @@ def ensure_newlines_after(buffer, cursor):
     if line_number <= 0:
         return
     else:
-        print('ensure', cursor, x, buffer[line_number])
         ensure_newlines(buffer, (line_number, 0))
 
 def ensure_indent(buffer, cursor, indent):
