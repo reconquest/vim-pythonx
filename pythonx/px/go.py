@@ -167,6 +167,9 @@ def is_struct_bracket(buffer, line, column):
 
 
 def autoimport():
+    if all.is_syntax_string(vim.current.window.cursor):
+        return
+
     info = vim.eval('go#complete#GetInfo()')
     if info != "" and re.match("^var \w+", info):
         return
