@@ -7,7 +7,7 @@ import importlib
 import highlight
 
 IDENTIFIERS_RE = r'([\w.]+)(?=[\w., ]*:?=)|(\w+)(?=\s+\S+[,)])'
-COMPLETE_VAR_STATE=''
+COMPLETE_VAR_STATE = ''
 
 
 def reset_complete_var_state():
@@ -40,8 +40,20 @@ def get_syntax_name((line, column), filter=filter_rainbow_syntax):
     return filter(syntax_name)
 
 
+def get_syntax_names((line, column)):
+    syntax_stack = vim.eval('synstack({}, {})'.format(line, column))
+
+    names = []
+    for syn_id in syntax_stack:
+        names.append(
+            vim.eval('synIDattr(synIDtrans({}), "name")'.format(syn_id))
+        )
+
+    return names
+
+
 def is_syntax_string(cursor):
-    return get_syntax_name(cursor) == 'String'
+    return 'String' in get_syntax_names(cursor)
 
 
 def convert_camelcase_to_snakecase(name):
