@@ -73,21 +73,12 @@ def get_previous_slice_usage():
 
 
 def split_parenthesis():
-    line_number, column_number = vim.current.window.cursor
-    buffer = vim.current.buffer
-    line = buffer[line_number-1]
-    first_parenthesis = line.rfind('(', 0, column_number)
-    last_parenthesis = line.rfind(')')
-    indent = len(line) - len(line.lstrip("\t"))
-
-    buffer[line_number:line_number]= [
-        "\t" * (indent + 1) + line[first_parenthesis+1:last_parenthesis] + ",",
-        "\t" * indent + line[last_parenthesis:],
-        "",
-    ]
-
-    buffer[line_number-1] = line[:first_parenthesis+1]
-
+    first_paren = vim.eval('searchpos("(", "bc")')
+    vim.command('exec "normal a\<CR>"')
+    vim.command('call search("(", "bc")')
+    vim.current.window.cursor = (int(first_paren[0]), int(first_paren[1]))
+    vim.command('normal %')
+    vim.command('exec "normal ha,\<CR>"')
 
 def get_imports():
     buffer = vim.current.buffer
