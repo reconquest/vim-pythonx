@@ -210,6 +210,8 @@ def get_all_imports():
 
     for info in golist.split("\n"):
         name, path = info.split(':')
+        if "/vendor/" in path:
+            continue
         _imports_cache[name] = path
 
     return _imports_cache
