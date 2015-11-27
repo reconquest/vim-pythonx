@@ -208,7 +208,12 @@ def get_all_imports():
         ['go', 'list', '-f', '{{.Name}}:{{.ImportPath}}', '...']
     ).strip()
 
-    for info in golist.split("\n"):
+    # sort imports by descending length, it will make some priority for stdlib
+    # packages
+    imports = golist.split("\n")
+    imports.sort(key=len, reverse=True)
+
+    for info in imports:
         name, path = info.split(':')
         if "/vendor/" in path:
             continue
