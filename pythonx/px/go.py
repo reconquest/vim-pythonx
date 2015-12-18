@@ -205,7 +205,7 @@ def get_all_imports():
         return _imports_cache
 
     golist = subprocess.check_output(
-        ['go', 'list', '-f', '{{.Name}}:{{.ImportPath}}', '...']
+        ['go', 'list', '-e', '-f', '{{.Name}}:{{.ImportPath}}', '...']
     ).strip()
 
     # sort imports by descending length, it will make some priority for stdlib
