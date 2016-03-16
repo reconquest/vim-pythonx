@@ -1,48 +1,41 @@
 # coding=utf8
 
 import vim
-import datetime
 
-active_highlights = []
+import px.cursor
 
-def clear():
-    global active_highlights
-    if not active_highlights:
-        return
-    cursor = vim.current.window.cursor
-    (_, _, current_match_id) = active_highlights[-1]
-    kept = []
-    for active_highlight in active_highlights:
-        (old_match, old_cursor, match_id) = active_highlight
-        if cursor == old_cursor and match_id == current_match_id:
-            kept.append(active_highlight)
-        else:
-            vim.eval('matchdelete({})'.format(match_id))
-    active_highlights = kept
+class Highlighter(object):
+    def __init__(self):
+        self._active_highlights = []
 
+    def clear(self):
+        if not self._active_highlights:
+            return
 
-def highlight(line_number, column_start, length, group='Conceal'):
-    global active_highlights
+        (_, _, current_match_id) = self._active_highlights[-1]
+        kept = []
+        for active_highlight in self._active_highlights:
+            (old_match, old_cursor, match_id) = active_highlight
+            if px.cursor.get() == old_cursor and match_id == current_match_id:
+                kept.append(active_highlight)
+            else:
+                try:
+                    vim.eval('matchdelete({})'.format(match_id))
+                except:
+                    pass
 
-    match_id = vim.eval('matchadd("{}", \'\%{}l\%{}c.{}\')'.format(
-        group,
-        line_number,
-        column_start,
-        '\\{'+str(length)+'\\}'
+        self._active_highlights = kept
+
+    def highlight(self, line_number, column_start, length, group='Conceal'):
+        match_id = vim.eval('matchadd("{0}", \'\%{2}l\%{3}c.{1}\')'.format(
+            group,
+            '\\{'+str(length)+'\\}',
+            *px.cursor.to_vim_lang((line_number, column_start))
         ))
 
-    active_highlights.append((
-        (line_number, column_start),
-        vim.current.window.cursor,
-        match_id
-    ))
+        self._active_highlights.append(
+            ((line_number, column_start), px.cursor.get(), match_id)
+        )
 
-    vim.command('augroup px_highlight_clear')
-    vim.command('au!')
-    vim.command(
-        'au CursorMovedI,CursorMoved * py px.highlight.clear()')
-    vim.command('augroup end')
-
-
-def get():
-    return active_highlights
+    def get_active(self):
+        return self._active_highlights

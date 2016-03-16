@@ -1,49 +1,22 @@
-py import px.all
+py import px.langs
 
-augroup vim_pythonx_go
+augroup px_langs_go
     au!
-    au FileType go py import px.go
-    au FileType go inoremap <silent> <buffer> . <C-\><C-O>:py px.go.autoimport()<CR>.
-
-    au FileType go :autocmd! vim_pythonx_go CursorMovedI <buffer>
-        \ call PxCompleteVarResetState('CursorMovedI')
-
-    au FileType go :autocmd! vim_pythonx_go InsertLeave <buffer>
-        \ call PxCompleteVarResetState('InsertLeave')
+    au FileType go py import px.langs.go
+    au FileType go inoremap
+        \ <silent> <buffer> . <C-\><C-O>:py px.langs.go.autoimport()<CR>.
 augroup END
 
-augroup vim_pythonx_php
-    au!
-    au FileType php py import px.php
-augroup END
-
-inoremap <silent> <C-L> <C-\><C-O>:call PxCompleteVar()<CR>
+inoremap <silent> <C-L> <C-\><C-O>:call px#CompleteIdentifier()<CR>
 smap <C-L> <BS><C-L>
 
-let g:_px_go_complete_var_should_skip_cursor_moved_i = 0
-let g:_px_go_complete_var_should_skip_insert_leave = 0
+py import px.common
+py import px.autocommands
 
-function! PxCompleteVarResetState(autocmd)
-    if a:autocmd == 'CursorMovedI'
-        if g:_px_go_complete_var_should_skip_cursor_moved_i == 1
-            let g:_px_go_complete_var_should_skip_cursor_moved_i = 0
-            return
-        en
-    en
-
-    if a:autocmd == 'insertleave'
-        if g:_px_go_complete_var_should_skip_insert_leave == 1
-            let g:_px_go_complete_var_should_skip_insert_leave = 0
-            return
-        en
-    en
-
-    py px.all.reset_complete_var_state()
+function! px#CompleteIdentifier()
+    py px.autocommands.enable_identifiers_completion_auto_reset()
+    py px.common.wrap_for_filetype('complete_identifier')()
+    py px.common.highlight_completion()
 endfunction!
 
-function! PxCompleteVar()
-    let g:_px_go_complete_var_should_skip_cursor_moved_i = 1
-    let g:_px_go_complete_var_should_skip_insert_leave = 1
-
-    py px.all.wrap_for_filetype('complete_var')()
-endfunction!
+py px.autocommands.enable_cursor_moved_callbacks()

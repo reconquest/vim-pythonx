@@ -1,99 +1,106 @@
 # coding=utf8
 
 import unittest
-from util import *
+
+import whitespaces
+import identifiers
+
+from identifiers import Identifier
 
 
 class CommonTestCase(unittest.TestCase):
 
     def testIdentifierUnderCursor(self):
         self.assertEqual(
-            get_identifier_under_cursor(["abc.def"], (0, 2)),
-            ("ab", (0, 1))
+            identifiers.get_under_cursor(["abc.def"], (0, 2)),
+            Identifier("ab", (0, 1))
         )
         self.assertEqual(
-            get_identifier_under_cursor(["abc.def"], (0, 4)),
-            ("abc.", (0, 1))
+            identifiers.get_under_cursor(["abc.def"], (0, 4)),
+            Identifier("abc.", (0, 1))
         )
         self.assertEqual(
-            get_identifier_under_cursor(["abc.def"], (0, 7)),
-            ("abc.def", (0, 1))
+            identifiers.get_under_cursor(["abc.def"], (0, 7)),
+            Identifier("abc.def", (0, 1))
         )
 
     def testHigherIndent(self):
         self.assertEqual(
-            get_higher_ident(['a', 'b'], (2, 0)),
+            whitespaces.get_higher_indent(['a', 'b'], (1, 0)),
             None
         )
         self.assertEqual(
-            get_higher_ident(['a', '\tb'], (2, 0)),
-            ('a', 1)
+            whitespaces.get_higher_indent(['a', '\tb'], (1, 0)),
+            ('a', 0)
         )
 
     def testHigherIndentMatch(self):
         self.assertEqual(
-            match_higher_indent(['a', '\tb', '\t\tc'], (3, 0), 'a'),
-            ('a', 1)
+            whitespaces.match_higher_indent(['a', '\tb', '\t\tc'],
+                (2, 0), 'a'),
+            ('a', 0)
         )
         self.assertEqual(
-            match_higher_indent(['a', '', '\t\tc'], (3, 0), 'a'),
-            ('a', 1)
+            whitespaces.match_higher_indent(['a', '', '\t\tc'], (2, 0), 'a'),
+            ('a', 0)
         )
 
-    def testPossibleIdentifiers(self):
+    def testPossibleIdentifier(self):
         self.assertEqual(
-            list(get_possible_identifiers(['a b c'], (1, 5))),
+            list(identifiers.extract_possible_backward(['a b c'], (0, 5))),
             [
-                ('c', (1, 5)),
-                ('b', (1, 3)),
-                ('a', (1, 1))
+                Identifier('c', (0, 5)),
+                Identifier('b', (0, 3)),
+                Identifier('a', (0, 1))
             ]
         )
 
-    def testGetLastUsedVar(self):
-        identifiers = [
-            ('c', (1, 5)),
-            ('b', (1, 3)),
-            ('a', (1, 1))
+    def testGetLastUsedIdentifier(self):
+        test_identifiers = [
+            Identifier('c', (1, 5)),
+            Identifier('b', (1, 3)),
+            Identifier('a', (1, 1))
         ]
         self.assertEqual(
-            get_last_used_var(identifiers),
-            ('c', (1, 5))
+            identifiers.get_last_used(test_identifiers),
+            Identifier('c', (1, 5))
         )
         self.assertEqual(
-            get_last_used_var(identifiers, ('c', (1, 5))),
-            ('b', (1, 3))
+            identifiers.get_last_used(test_identifiers,
+                Identifier('c', (1, 5))),
+            Identifier('b', (1, 3))
         )
         self.assertEqual(
-            get_last_used_var(identifiers, ('c', (1, 5)),
-                should_skip=lambda x, _: x[0]=='b'),
-            ('a', (1, 1))
+            identifiers.get_last_used(test_identifiers,
+                Identifier('c', (1, 5)),
+                should_skip=lambda x: x.name == 'b'),
+            Identifier('a', (1, 1))
         )
 
     def testCanEnsureNewlines(self):
         self.assertEqual(
-            ensure_newlines(['a'], 0, 1),
-            (0, 1)
+            whitespaces.ensure_newlines(['a'], (0, '_'), 1),
+            (['', 'a'], 0, 1)
         )
         self.assertEqual(
-            ensure_newlines(['', 'a'], 1, 1),
-            (0, 0)
+            whitespaces.ensure_newlines(['', 'a'], (1, '_'), 1),
+            (['', 'a'], 0, 0)
         )
         self.assertEqual(
-            ensure_newlines(['', 'a'], 1, 2),
-            (0, 1)
+            whitespaces.ensure_newlines(['', 'a'], (1, '_'), 2),
+            (['', '', 'a'], 0, 1)
         )
         self.assertEqual(
-            ensure_newlines(['a', 'b', 'c'], 2, 1),
-            (2, 1)
+            whitespaces.ensure_newlines(['a', 'b', 'c'], (2, '_'), 1),
+            (['a', 'b', '', 'c'], 2, 1)
         )
         self.assertEqual(
-            ensure_newlines(['a', 'b', 'c'], 1, 2),
-            (1, 2)
+            whitespaces.ensure_newlines(['a', 'b', 'c'], (1, '_'), 2),
+            (['a', '', '', 'b', 'c'], 1, 2)
         )
         self.assertEqual(
-            ensure_newlines(['a', '', 'b'], 2, 1),
-            (1, 0)
+            whitespaces.ensure_newlines(['a', '', 'b'], (2, '_'), 1),
+            (['a', '', 'b'], 1, 0)
         )
 
 if __name__ == '__main__':
