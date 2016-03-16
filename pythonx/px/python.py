@@ -2,7 +2,7 @@
 
 import vim
 import re
-import all
+import px.all
 import px.util
 
 function_re = re.compile('^def ')

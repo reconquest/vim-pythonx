@@ -6,10 +6,10 @@ import os
 import subprocess
 import glob
 
-import util
-import highlight
+import px.util
+import px.highlight
 
-import all
+import px.all
 
 IDENTIFIERS_RE = r'(protected|public|private|var)?\s?(\$(\w+(->)?)+)(?!\w*\()'
 

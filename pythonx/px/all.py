@@ -2,9 +2,9 @@
 
 import re
 import vim
-import util
+import px.util
 import importlib
-import highlight
+import px.highlight
 
 IDENTIFIERS_RE = r'([\w.]+)(?=[\w., ]*:?=)|(\w+)(?=\s+\S+[,)])'
 COMPLETE_VAR_STATE = ''
@@ -30,7 +30,8 @@ def filter_rainbow_syntax(syntax_name):
         return syntax_name
 
 
-def get_syntax_name((line, column), filter=filter_rainbow_syntax):
+def get_syntax_name(position, filter=filter_rainbow_syntax):
+    (line, column) = position
     syntax_name = vim.eval(
         'synIDattr(synIDtrans(synID({}, {}, 1)), "name")'.format(
             line, column
@@ -40,7 +41,8 @@ def get_syntax_name((line, column), filter=filter_rainbow_syntax):
     return filter(syntax_name)
 
 
-def get_syntax_names((line, column)):
+def get_syntax_names(position):
+    (line, column) = position
     syntax_stack = vim.eval('synstack({}, {})'.format(line, column))
 
     names = []
@@ -81,7 +83,8 @@ def get_pair_line(buffer, line, column):
     return pair_line
 
 
-def default_highlight((line, column), string):
+def default_highlight(position, string):
+    (line, column) = position
     return highlight.highlight(line, column, len(string))
 
 
@@ -97,12 +100,12 @@ def complete_var(
     buffer = vim.current.window.buffer
     cursor = vim.current.window.cursor
 
-    identifier_data = util.get_identifier_under_cursor(
+    identifier_data = px.util.get_identifier_under_cursor(
         buffer, cursor, pattern + '$', extract
     )
 
     if not identifiers:
-        identifiers = util.get_possible_identifiers(
+        identifiers = px.util.get_possible_identifiers(
             buffer, cursor, pattern, extract,
         )
         if identifiers[0] == identifier_data:
@@ -130,7 +133,7 @@ def complete_var(
         should_skip = lambda *id_data: should_skip_default(*id_data) or \
                 not re.match(r'^' + COMPLETE_VAR_STATE, id_data[0])
 
-    new_identifier_data = util.get_last_used_var(
+    new_identifier_data = px.util.get_last_used_var(
         identifiers, previous_match, should_skip
     )
 
@@ -175,8 +178,8 @@ def wrap_for_filetype(function_name):
 
 
 def get_last_defined_var_for_snippet(pattern=IDENTIFIERS_RE):
-    identifier_data = util.get_last_used_var(
-        identifiers=util.get_defined_identifiers(
+    identifier_data = px.util.get_last_used_var(
+        identifiers=px.util.get_defined_identifiers(
             vim.current.window.buffer,
             vim.current.window.cursor,
             pattern
@@ -193,8 +196,8 @@ def get_last_used_var_for_snippet(
     pattern='([\w.]+)(?![\w.]*\(|[\'"])',
     extract=lambda m: (m.group(1), m.start(1))
 ):
-    identifier_data = util.get_last_used_var(
-        identifiers=util.get_possible_identifiers(
+    identifier_data = px.util.get_last_used_var(
+        identifiers=px.util.get_possible_identifiers(
             vim.current.window.buffer,
             vim.current.window.cursor,
             pattern,
@@ -215,7 +218,7 @@ def get_buffer_line():
 
 
 def ensure_newlines(buffer, cursor, amount):
-    before, how_much = util.ensure_newlines(buffer, cursor[0], amount)
+    before, how_much = px.util.ensure_newlines(buffer, cursor[0], amount)
     buffer[before:before] = [''] * how_much
 
 

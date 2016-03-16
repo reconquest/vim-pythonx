@@ -6,8 +6,8 @@ import os
 import subprocess
 import glob
 
-import util
-import all
+import px.util
+import px.all
 
 GOROOT = subprocess.check_output(['go', 'env', 'GOROOT']).strip()
 GOPATH = subprocess.check_output(['go', 'env', 'GOPATH']).strip()
@@ -25,7 +25,7 @@ GO_SYNTAX_ITEMS = [
 _imports_cache = {}
 
 def extract_prev_method_binding_for_cursor():
-    search_space = all.get_buffer_before_cursor()
+    search_space = px.all.get_buffer_before_cursor()
 
     def extract_from_type_definition():
         matches = re.findall(r'(?m)^type (\w+) ', search_space)
@@ -63,7 +63,7 @@ def guess_package_name_from_file_name(path):
 
 
 def get_previous_slice_usage():
-    search_space = all.get_buffer_before_cursor()
+    search_space = px.all.get_buffer_before_cursor()
     matches = re.findall(r'(\w+)\[', search_space)
 
     if matches:
@@ -134,7 +134,7 @@ def get_package_name_from_file(path):
 
 
 def is_if_bracket(buffer, line, column):
-    return all.get_pair_line(buffer, line, column).strip().startswith("if")
+    return px.all.get_pair_line(buffer, line, column).strip().startswith("if")
 
 
 def is_return_argument(buffer, line, column):
@@ -151,14 +151,14 @@ def is_in_err_condition(buffer, line, column):
 
 def is_struct_bracket(buffer, line, column):
     is_struct_def = re.match("^type \w+ struct",
-        all.get_pair_line(buffer, line, column))
+        px.all.get_pair_line(buffer, line, column))
     is_method_def = re.match("^func \(\w+ \w+\) ",
-        all.get_pair_line(buffer, line, column))
+        px.all.get_pair_line(buffer, line, column))
     return is_struct_def or is_method_def
 
 
 def autoimport():
-    if all.is_syntax_string(vim.current.window.cursor):
+    if px.all.is_syntax_string(vim.current.window.cursor):
         return
 
     info = ""
@@ -170,7 +170,7 @@ def autoimport():
     if info != "" and re.match("^var \w+", info):
         return
 
-    identifier_data = util.get_identifier_under_cursor(
+    identifier_data = px.util.get_identifier_under_cursor(
         vim.current.buffer,
         vim.current.window.cursor,
     )
