@@ -13,11 +13,11 @@ def ensure_newlines(buffer, cursor):
     line_number, _ = cursor
     line = buffer[line_number]
     if function_re.match(line):
-        all.ensure_newlines(buffer, (line_number, 0), 2)
+        px.all.ensure_newlines(buffer, (line_number, 0), 2)
     if method_re.match(line):
-        all.ensure_newlines(buffer, (line_number, 0), 1)
+        px.all.ensure_newlines(buffer, (line_number, 0), 1)
     if class_re.match(line):
-        all.ensure_newlines(buffer, (line_number, 0), 2)
+        px.all.ensure_newlines(buffer, (line_number, 0), 2)
 
 
 def ensure_newlines_after(buffer, cursor):

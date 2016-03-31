@@ -4,6 +4,7 @@ import vim
 
 import px.cursor
 
+
 class Highlighter(object):
     def __init__(self):
         self._active_highlights = []

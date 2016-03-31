@@ -58,9 +58,6 @@ class IdentifierCompleter(object):
     def get_completion(self):
         return self._completion
 
-    def set_default_highlight(self, highlight_func):
-        self._highlighter = highlight_func
-
     def set_identifier_extractor(self, matcher):
         self._identifier_extractor = matcher
 
