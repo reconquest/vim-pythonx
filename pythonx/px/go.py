@@ -5,12 +5,15 @@ import re
 import os
 import subprocess
 import glob
+import collections
 
 import px.util
 import px.all
 
 GOROOT = subprocess.check_output(['go', 'env', 'GOROOT']).strip()
 GOPATH = subprocess.check_output(['go', 'env', 'GOPATH']).strip()
+
+CACHE_IMPORT_TO_PACKAGE = os.getenv('HOME') + '/.cache/vim-pythonx.imports'
 
 GO_SYNTAX_ITEMS = [
     'String',
@@ -22,7 +25,7 @@ GO_SYNTAX_ITEMS = [
     'Type',
 ]
 
-_imports_cache = {}
+_cache_all_packages = {}
 
 def extract_prev_method_binding_for_cursor():
     search_space = px.all.get_buffer_before_cursor()
@@ -79,58 +82,6 @@ def split_parenthesis():
     vim.current.window.cursor = (int(first_paren[0]), int(first_paren[1]))
     vim.command('normal %')
     vim.command('exec "normal ha,\<CR>"')
-
-def get_imports():
-    buffer = vim.current.buffer
-    reImportLine = r'\s* ((\w+) \s+)? "([^"]+)" \s*'
-
-    matches = re.findall(r"""
-        (?sxm)
-        import \s* \(?(
-            (""" + reImportLine + """)+
-        )\)?""", "\n".join(buffer))
-
-    if not matches:
-        return []
-
-    matches = re.findall(r"(?sxm)" + reImportLine, matches[0][0])
-    if not matches:
-        return[]
-
-    result = []
-    for match in matches:
-        if not match[1]:
-            package_name = path_to_import_name(match[2])
-        else:
-            package_name = match[1]
-        result.append((package_name, match[2]))
-
-    return result
-
-
-def path_to_import_name(path):
-    gopath = GOROOT + ":" + GOPATH
-
-    for lib_path in gopath.split(':'):
-        gofiles = glob.glob(os.path.join(lib_path, "src", path, "*.go"))
-
-        if not gofiles:
-            continue
-
-        for gofile in gofiles:
-            package_name = get_package_name_from_file(gofile)
-
-            if package_name:
-                return package_name
-
-
-def get_package_name_from_file(path):
-    with open(path) as gofile:
-        for line in gofile:
-            if line.endswith('_test\n'):
-                continue
-            if line.startswith('package '):
-                return line.split(' ')[1].strip()
 
 
 def is_if_bracket(buffer, line, column):
@@ -192,34 +143,128 @@ def autoimport():
 
 
 def get_import_path_for_identifier(identifier):
-    imports = get_all_imports()
-    if identifier not in imports:
+    packages = get_all_packages()
+    if identifier not in packages:
         return None
-    return imports[identifier]
+    return packages[identifier]
 
+def _read_file_package_cache():
+    if not os.path.exists(CACHE_IMPORT_TO_PACKAGE):
+        return {}
 
-def get_all_imports():
-    global _imports_cache
+    file_package = {}
 
-    if _imports_cache:
-        return _imports_cache
+    with open(CACHE_IMPORT_TO_PACKAGE, 'r+') as cache:
+        for line in cache:
+            file, package = line.rstrip('\n').split(':')
+            file_package[file] = package
 
-    golist = subprocess.check_output(
-        ['go', 'list', '-e', '-f', '{{.Name}}:{{.ImportPath}}', '...']
-    ).strip()
+    return file_package
 
-    # sort imports by descending length, it will make some priority for stdlib
-    # packages
-    imports = golist.split("\n")
-    imports.sort(key=len, reverse=True)
+def _write_file_package_cache(file_package):
+    with open(CACHE_IMPORT_TO_PACKAGE, 'w') as cache:
+        lines = []
+        for (file, package) in file_package.items():
+            lines.append(file + ':' + package)
+        cache.write('\n'.join(lines))
 
-    for info in imports:
-        name, path = info.split(':')
-        if "/vendor/" in path:
-            continue
-        _imports_cache[name] = path
+def get_all_packages():
+    global _cache_all_packages
 
-    return _imports_cache
+    if _cache_all_packages:
+        return _cache_all_packages
+
+    packages = {}
+
+    imports_data = collections.OrderedDict(
+        sorted(get_imports_data().items(), key=lambda x: len(x[0]))
+    )
+
+    file_package_cache = _read_file_package_cache()
+    new_file_package_cache = {}
+
+    for (import_path, file) in imports_data.items():
+        if file in file_package_cache:
+            package = file_package_cache[file]
+        else:
+            package = get_package_name_from_file(file)
+
+        if not package in packages:
+            packages[package] = import_path
+
+        new_file_package_cache[file] = package
+
+    _write_file_package_cache(new_file_package_cache)
+
+    _cache_all_packages = packages
+
+    return packages
+
+def get_imports_data():
+    exclude = [
+        '.git',
+        '.hg',
+        '.svn',
+        'examples',
+        'example',
+        'testdata',
+        'tests',
+        'test',
+        'vendor',
+    ]
+
+    imports = {}
+
+    for root_dir in [ GOPATH]:
+        root_src_dir = os.path.join(root_dir, "src")
+        last_package_dir = None
+        for package_dir, dirs, files in os.walk(root_src_dir):
+            # dir[:] is required because of it's not a simple slice, but special
+            # object, which is used to control recursion in os.walk()
+            dirs[:] = [dir_name for dir_name in dirs
+                if dir_name not in exclude
+            ]
+
+            go_file = False
+            for file in files:
+                if file.endswith('_test.go'):
+                    continue
+
+                if file.endswith('.go'):
+                    go_file = file
+                    break
+
+            # if no go files found and parent directory already has a package,
+            # prune directory
+            if not go_file:
+                if last_package_dir:
+                    if package_dir.startswith(last_package_dir):
+                        dirs[:] = []
+                    else:
+                        last_package_dir = None
+                continue
+
+            # +1 stands for /
+            package_import = package_dir[len(root_src_dir)+1:]
+
+            # fix for standard libraries
+            if root_dir == GOROOT and package_import[:4] == "pkg/":
+                package_import = package_import[4:]
+
+            imports[package_import] = package_dir + "/" + go_file
+
+            # remember top-level package directory
+            if not (last_package_dir and \
+                    package_dir.startswith(last_package_dir)):
+                last_package_dir = package_dir
+
+    return imports
+
+def get_package_name_from_file(path):
+    with open(path) as gofile:
+        for line in gofile:
+            if line.startswith('package '):
+                return line.split(' ')[1].strip()
 
 def get_bracket_line(buffer, line):
     while True:
