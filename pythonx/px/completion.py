@@ -13,7 +13,6 @@ class IdentifierCompleter(object):
         return px.syntax.get_name(identifier.position) != '' or \
             px.syntax.is_string(identifier.position)
 
-
     @staticmethod
     def _default_identifier_matcher(line_number, line):
         matches = re.search('([\w.]+)(?![\w.]*\()$', line)
@@ -82,9 +81,7 @@ class IdentifierCompleter(object):
             )
 
         if self._completion:
-            should_skip = self._make_current_skipper(
-                should_skip
-            )
+            should_skip = self._make_current_skipper(should_skip)
 
         new_identifier = px.identifiers.get_last_used(
             identifiers,
@@ -113,10 +110,17 @@ class IdentifierCompleter(object):
             should_skip,
         )
 
+        line_number, column_number = cursor
+
+        if identifier:
+            self._start_position = (
+                line_number,
+                column_number - len(identifier.name)
+            )
+
         if not new_identifier:
             return None, cursor
 
-        line_number, column_number = cursor
         line = buffer[line_number]
 
         if column_number - len(identifier.name) >= 0:
@@ -125,11 +129,6 @@ class IdentifierCompleter(object):
             buffer[line_number] = ""
 
         buffer[line_number] += new_identifier.name + line[column_number:]
-
-        self._start_position = (
-            line_number,
-            column_number - len(identifier.name)
-        )
 
         new_cursor = (
             self._start_position[0],

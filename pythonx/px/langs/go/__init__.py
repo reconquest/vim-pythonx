@@ -10,16 +10,20 @@ import px.identifiers
 import px.buffer
 import px.syntax
 
+import completion
+
 from autoimport import Autoimporter
-from completion import NotUsedIdentifierCompleter
+from completion import DefaultCompleter
+from completion.unused import UnusedIdentifierCompleter
 
 
 GOROOT = subprocess.check_output(['go', 'env', 'GOROOT']).strip()
 GOPATH = subprocess.check_output(['go', 'env', 'GOPATH']).strip()
 
 _DefaultAutoimporter = Autoimporter()
+_DefaultCompleter = DefaultCompleter()
 
-_NotUsedIdentifierCompleter = NotUsedIdentifierCompleter()
+_UnusedIdentifierCompleter = UnusedIdentifierCompleter()
 
 
 def extract_prev_method_binding(buffer, cursor):
@@ -316,11 +320,11 @@ def autoimport_at_cursor():
 
 def get_not_used_identifier_completion(
     identifiers=[],
-    should_skip=_NotUsedIdentifierCompleter._default_skipper
+    should_skip=UnusedIdentifierCompleter._default_skipper
 ):
-    px.common.set_active_completer(_NotUsedIdentifierCompleter)
+    px.common.set_active_completer(_UnusedIdentifierCompleter)
 
-    return _NotUsedIdentifierCompleter.get_identifier_completion(
+    return _UnusedIdentifierCompleter.get_identifier_completion(
         px.buffer.get(),
         px.cursor.get(),
         identifiers,

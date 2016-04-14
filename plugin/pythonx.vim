@@ -15,8 +15,8 @@ py import px.autocommands
 
 function! pythonx#CompleteIdentifier()
     py px.autocommands.enable_identifier_completion_auto_reset()
-    "py px.common.wrap_for_filetype('complete_identifier')()
-    py px.common.complete_identifier()
+    py px.autocommands.enable_highlight_auto_clear()
+    py px.common.wrap_for_filetype('complete_identifier')()
     py px.common.highlight_completion()
 endfunction!
 

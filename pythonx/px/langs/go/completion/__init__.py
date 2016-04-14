@@ -5,32 +5,29 @@ import re
 import px.completion
 import px.buffer
 
-
-class NotUsedIdentifierCompleter(px.completion.IdentifierCompleter):
+class DefaultCompleter(px.completion.IdentifierCompleter):
     @staticmethod
-    def _default_identifier_extractor(line_number, line):
-        buffer = px.buffer.get()
-
-        identifiers = px.identifiers._default_extractor(line_number, line)
-        for identifier in identifiers:
-            if NotUsedIdentifierCompleter._is_just_assigned(
-                buffer, identifier
-            ):
-                yield identifier
+    def _default_skipper(identifier):
+        if identifier.name == '_':
+            return True
+        else:
+            return px.completion.IdentifierCompleter._default_skipper(
+                identifier
+            )
 
     @staticmethod
     def _is_just_assigned(buffer, identifier):
-        if NotUsedIdentifierCompleter._is_passed_by_address(
+        if DefaultCompleter._is_passed_by_address(
             buffer, identifier
         ):
             return True
 
-        if NotUsedIdentifierCompleter._is_assigned(
+        if DefaultCompleter._is_assigned(
             buffer, identifier
         ):
             return True
 
-        if NotUsedIdentifierCompleter._is_func_argument(
+        if DefaultCompleter._is_func_argument(
             buffer, identifier
         ):
             return True
@@ -108,8 +105,3 @@ class NotUsedIdentifierCompleter(px.completion.IdentifierCompleter):
             return True
         else:
             return False
-
-    def __init__(self):
-        super(self.__class__, self).__init__()
-
-        self.set_identifier_extractor(self._default_identifier_extractor)

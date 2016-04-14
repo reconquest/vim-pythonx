@@ -11,7 +11,7 @@ import px.buffer
 
 _DefaultCompleter = px.completion.IdentifierCompleter()
 
-_ActiveCompleter = _DefaultCompleter
+_ActiveCompleter = None
 
 _DefaultHighlighter = px.highlight.Highlighter()
 
@@ -23,7 +23,7 @@ def wrap_for_filetype(function_name):
 
     try:
         module = importlib.import_module(
-            'px.lang.' + px.buffer.get().options['filetype']
+            'px.langs.' + px.buffer.get().options['filetype']
         )
     except ImportError:
         module = common_module
@@ -33,9 +33,15 @@ def wrap_for_filetype(function_name):
     except AttributeError:
         return getattr(common_module, function_name)
 
+def get_active_identifier_skipper():
+    def active_skipper(identifier):
+        return get_active_completer()._default_skipper(identifier)
+
+    return active_skipper
+
 
 def get_identifier_completion(identifiers=[],
-        should_skip=_DefaultCompleter._default_skipper):
+        should_skip=get_active_identifier_skipper()):
     return get_active_completer().get_identifier_completion(
         px.buffer.get(),
         px.cursor.get(),
@@ -44,21 +50,8 @@ def get_identifier_completion(identifiers=[],
     )
 
 
-def set_active_completer(completer):
-    global _ActiveCompleter
-
-    _ActiveCompleter = completer
-
-
-def get_active_completer():
-    if _ActiveCompleter:
-        return _ActiveCompleter
-    else:
-        return _DefaultCompleter
-
-
 def complete_identifier(identifiers=[],
-        should_skip=get_active_completer()._default_skipper):
+        should_skip=get_active_identifier_skipper()):
     identifier, cursor = get_active_completer().complete_identifier(
         px.buffer.get(),
         px.cursor.get(),
@@ -72,10 +65,23 @@ def complete_identifier(identifiers=[],
     return identifier, cursor
 
 
+def set_active_completer(completer):
+    global _ActiveCompleter
+
+    _ActiveCompleter = completer
+
+
+def get_active_completer():
+    if _ActiveCompleter:
+        return _ActiveCompleter
+    else:
+        return wrap_for_filetype('_DefaultCompleter')
+
+
 def reset_identifier_completion():
     if get_active_completer().should_reset(px.cursor.get()):
         get_active_completer().reset()
-        set_active_completer(_DefaultCompleter)
+        set_active_completer(None)
 
 
 def highlight_completion():

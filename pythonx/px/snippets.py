@@ -18,12 +18,7 @@ def complete_identifier_for_placeholder(
     cursor = (cursor[0], cursor[1] + len(current_value))
 
     if current_value != '':
-        px.common.register_cursor_moved_callback(
-            'complete_identifier_for_placeholder',
-            cursor,
-            _highlight_completion
-        )
-
+        expect_cursor_jump(cursor)
         px.common.run_cursor_moved_callbacks()
 
         return current_value
@@ -37,6 +32,14 @@ def complete_identifier_for_placeholder(
             return new_identifier.name
         else:
             return ''
+
+
+def expect_cursor_jump(cursor):
+    px.common.register_cursor_moved_callback(
+        'complete_identifier_for_placeholder',
+        cursor,
+        _highlight_completion
+    )
 
 
 def _highlight_completion():
