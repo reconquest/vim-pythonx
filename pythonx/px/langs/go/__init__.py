@@ -22,8 +22,8 @@ _DefaultAutoimporter = Autoimporter()
 _NotUsedIdentifierCompleter = NotUsedIdentifierCompleter()
 
 
-def extract_prev_method_binding_for_cursor():
-    search_space = px.buffer.get_before_cursor()
+def extract_prev_method_binding(buffer, cursor):
+    search_space = px.buffer.get_before_cursor(buffer, cursor)
 
     def extract_from_type_definition():
         matches = re.findall(r'(?m)^type (\w+) ', search_space)
@@ -54,8 +54,8 @@ def extract_prev_method_binding_for_cursor():
     return result
 
 
-def get_previous_slice_usage():
-    search_space = px.buffer.get_before_cursor()
+def get_previous_slice_usage(buffer, cursor):
+    search_space = px.buffer.get_before_cursor(buffer, cursor)
     matches = re.findall(r'(\w+)\[', search_space)
 
     if matches:
@@ -233,8 +233,11 @@ def get_gocode_complete(full=True):
     if not info:
         return ""
 
-    line_number, _ = px.cursor.get()
-    function_name = px.buffer.get()[line_number - 1].strip()
+    cursor = px.cursor.get()
+    buffer = px.buffer.get()
+
+    line_till_cursor =  buffer[cursor[0]][:cursor[1]]
+    function_name = re.search(r'\w+\.\w+$', line_till_cursor).group(0)
 
     # removing 'func '
     info = info[5:]
@@ -300,9 +303,9 @@ def gocode_can_complete():
 def gocode_get_info():
     line, column = px.cursor.get()
 
-    px.cursor.set(line, column - 1)
+    px.cursor.set((line, column - 1))
     info = vim.eval('go#complete#GetInfo()')
-    px.cursor.set(line, column)
+    px.cursor.set((line, column))
 
     return info
 

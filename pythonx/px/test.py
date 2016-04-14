@@ -9,19 +9,18 @@ from identifiers import Identifier
 
 
 class CommonTestCase(unittest.TestCase):
-
     def testIdentifierUnderCursor(self):
         self.assertEqual(
             identifiers.get_under_cursor(["abc.def"], (0, 2)),
-            Identifier("ab", (0, 1))
+            Identifier("ab", (0, 0))
         )
         self.assertEqual(
             identifiers.get_under_cursor(["abc.def"], (0, 4)),
-            Identifier("abc.", (0, 1))
+            Identifier("abc.", (0, 0))
         )
         self.assertEqual(
             identifiers.get_under_cursor(["abc.def"], (0, 7)),
-            Identifier("abc.def", (0, 1))
+            Identifier("abc.def", (0, 0))
         )
 
     def testHigherIndent(self):
@@ -49,9 +48,9 @@ class CommonTestCase(unittest.TestCase):
         self.assertEqual(
             list(identifiers.extract_possible_backward(['a b c'], (0, 5))),
             [
-                Identifier('c', (0, 5)),
-                Identifier('b', (0, 3)),
-                Identifier('a', (0, 1))
+                Identifier('c', (0, 4)),
+                Identifier('b', (0, 2)),
+                Identifier('a', (0, 0))
             ]
         )
 
