@@ -2,12 +2,12 @@
 
 import unittest
 
-import completion
+import completion.unused
 import collections
 
 ID = collections.namedtuple('ID', ['position'])
 
-is_func_argument = completion.NotUsedIdentifierCompleter._is_func_argument
+is_func_argument = completion.unused.UnusedIdentifierCompleter._is_func_argument
 
 no_skip = lambda *_: False
 
