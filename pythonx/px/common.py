@@ -27,6 +27,8 @@ def wrap_for_filetype(function_name):
         )
     except ImportError:
         module = common_module
+    except KeyError:
+        module = common_module
 
     try:
         return getattr(module, function_name)
