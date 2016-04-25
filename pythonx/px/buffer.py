@@ -29,20 +29,25 @@ def get_pair_line(buffer, line, column):
     return pair_line
 
 
-def get_next_nonempty_line(buffer, cursor_line):
-    cursor_line += 1
-    for line in buffer[cursor_line:]:
+def get_next_nonempty_line(buffer, cursor):
+    cursor += 1
+    for line in buffer[cursor:]:
         if line.strip() == "":
-            cursor_line += 1
+            cursor += 1
             continue
 
-        return line, cursor_line
+        return line, cursor
 
     return "", 0
 
 
-def get_prev_nonempty_line(buffer, cursor_line):
-    for line in reversed(buffer[:cursor_line]):
+def get_prev_nonempty_line(buffer=None, cursor=None):
+    if not buffer:
+        buffer = get()
+    if not cursor:
+        cursor, _ = px.cursor.get()
+
+    for line in reversed(buffer[:cursor]):
         if line.strip() == "":
             continue
 

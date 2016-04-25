@@ -1,7 +1,6 @@
 # coding=utf8
 
 import re
-
 import vim
 
 
@@ -20,6 +19,7 @@ def get_adjusted():
         return (line, column + 1)
     else:
         return (line, column)
+
 
 def to_vim(cursor):
     return (cursor[0] + 1, cursor[1])
