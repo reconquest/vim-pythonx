@@ -7,6 +7,11 @@ import px.buffer
 import px.autocommands
 
 
+def _highlight_completion():
+    px.autocommands.enable_highlight_auto_clear()
+    px.common.highlight_completion()
+
+
 def complete_identifier_for_placeholder(
     cursor,
     current_value,
@@ -20,10 +25,6 @@ def complete_identifier_for_placeholder(
     cursor = (cursor[0], cursor[1] + len(current_value))
 
     if current_value != '':
-        def _highlight_completion():
-            px.autocommands.enable_highlight_auto_clear()
-            px.common.highlight_completion()
-
         expect_cursor_jump(cursor, _highlight_completion)
         px.common.run_cursor_moved_callbacks()
 
@@ -40,7 +41,7 @@ def complete_identifier_for_placeholder(
             return ''
 
 
-def expect_cursor_jump(cursor, callback):
+def expect_cursor_jump(cursor, callback=_highlight_completion):
     px.common.register_cursor_moved_callback(
         'snippets_cursor_jump',
         cursor,
@@ -71,7 +72,7 @@ def get_jumper_text(snip):
     if not snip.context or 'jumper' not in snip.context:
         return None
 
-    number = self.get_jumper_position(snip)
+    number = get_jumper_position(snip)
 
     return snip.context['jumper']['snip'].tabstops[number].current_text
 
@@ -82,6 +83,10 @@ def advance_jumper(snip):
 
 def rewind_jumper(snip):
     return _make_jumper_jump(snip, "backwards")
+
+
+def enable_jumper(snip):
+    snip.context['jumper']['enable'] = True
 
 
 def _make_jumper_jump(snip, direction):
@@ -98,7 +103,3 @@ def _make_jumper_jump(snip, direction):
         direction.title() + '()\<CR>")')
 
     return True
-
-
-def enable_jumper(snip):
-    snip.context['jumper']['enable'] = True
