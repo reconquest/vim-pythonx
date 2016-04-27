@@ -5,13 +5,7 @@ import importlib
 
 def libs(package="px"):
     if isinstance(package, str):
-        if package != "px" and not package.startswith("px."):
-            package = "px." + package
-
-        try:
-            package = importlib.import_module(package)
-        except:
-            pass
+        package = importlib.import_module(package)
 
     results = {}
     for loader, name, is_pkg in pkgutil.walk_packages(package.__path__):
