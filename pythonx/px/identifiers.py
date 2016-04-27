@@ -69,7 +69,8 @@ def _default_extractor(line_number, line):
 
 def extract_possible_backward(
     buffer, cursor,
-    extractor=_default_extractor
+    extractor=_default_extractor,
+    cutoff=50,
 ):
     line_number, column_number = cursor
 
@@ -82,6 +83,10 @@ def extract_possible_backward(
 
     while line_number > 0:
         line_number -= 1
+        cutoff -= 1
+
+        if cutoff < 0:
+            break
 
         line = buffer[line_number]
         identifiers += extractor(line_number, line)
