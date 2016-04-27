@@ -93,6 +93,27 @@ def enable_jumper(snip):
     snip.context['jumper']['enable'] = True
 
 
+def expand(snip, cursor_mark='|'):
+    buffer = px.buffer.get()
+    pivot = list(snip.snippet_start)
+    while pivot < list(snip.snippet_end):
+        if pivot[1] >= len(buffer[pivot[0]]):
+            pivot = (pivot[0]+1, 0)
+
+        if buffer[pivot[0]][pivot[1]] == cursor_mark:
+            break
+
+        pivot[1] += 1
+
+    snip.buffer[pivot[0]] = \
+        snip.buffer[pivot[0]][:pivot[1]] + \
+        snip.buffer[pivot[0]][pivot[1]+1:]
+
+    snip.cursor.set(*pivot)
+
+    vim.eval('feedkeys("\<C-R>=UltiSnips#ExpandSnippet()\<CR>")')
+
+
 def _make_jumper_jump(snip, direction):
     if not snip.context or 'jumper' not in snip.context:
         return False
