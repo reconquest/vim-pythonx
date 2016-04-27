@@ -15,7 +15,8 @@ def _highlight_completion():
 def complete_identifier_for_placeholder(
     cursor,
     current_value,
-    completer=None
+    completer=None,
+    should_skip=None,
 ):
     if completer is None:
         completer = px.common.wrap_for_filetype(
@@ -33,7 +34,10 @@ def complete_identifier_for_placeholder(
         px.autocommands.disable_identifier_completion_auto_reset()
         px.autocommands.disable_higlight_auto_clear()
 
-        _, new_identifier = completer()
+        if should_skip:
+            _, new_identifier = completer(should_skip=should_skip)
+        else:
+            _, new_identifier = completer()
 
         if new_identifier:
             return new_identifier.name
