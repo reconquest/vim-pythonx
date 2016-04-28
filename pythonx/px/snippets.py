@@ -93,28 +93,9 @@ def enable_jumper(snip):
     snip.context['jumper']['enable'] = True
 
 
-def expand(snip, cursor_mark=''):
-    if snip.tabstop != 1:
+def expand(snip, jump_pos=1):
+    if snip.tabstop != jump_pos:
         return
-
-    buffer = px.buffer.get()
-    pivot = list(snip.snippet_start)
-
-    if cursor_mark:
-        while pivot < list(snip.snippet_end):
-            if pivot[1] >= len(buffer[pivot[0]]):
-                pivot = (pivot[0]+1, 0)
-
-            if buffer[pivot[0]][pivot[1]] == cursor_mark:
-                break
-
-            pivot[1] += 1
-
-        snip.buffer[pivot[0]] = \
-            snip.buffer[pivot[0]][:pivot[1]] + \
-            snip.buffer[pivot[0]][pivot[1]+1:]
-
-        snip.cursor.set(*pivot)
 
     vim.eval('feedkeys("\<C-R>=UltiSnips#ExpandSnippet()\<CR>")')
 
