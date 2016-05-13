@@ -16,13 +16,16 @@ def get_before_cursor(buffer, cursor):
 
 
 def get_pair_line(buffer, line, column):
+    if line+1 >= len(buffer):
+        return get()[line]
+
     old_pos = px.cursor.get()
 
-    px.cursor.set(line + 1, column)
+    px.cursor.set((line + 1, column))
 
     vim.command("normal %")
 
-    pair_line = get()[px.cursor.get_column() - 1]
+    pair_line = get()[px.cursor.get()[1] - 1]
 
     px.cursor.set(old_pos)
 

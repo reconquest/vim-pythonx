@@ -65,7 +65,6 @@ def make_jumper(snip, on_tabstop=1):
 
 
 def get_jumper_position(snip):
-
     if not snip.context or 'jumper' not in snip.context:
         return None
 
@@ -77,6 +76,9 @@ def get_jumper_text(snip):
         return None
 
     number = get_jumper_position(snip)
+
+    if number not in snip.context['jumper']['snip'].tabstops:
+        return None
 
     return snip.context['jumper']['snip'].tabstops[number].current_text
 

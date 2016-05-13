@@ -72,7 +72,7 @@ def split_parenthesis():
     first_paren = vim.eval('searchpos("(", "bc")')
     vim.command('exec "normal a\<CR>"')
     vim.command('call search("(", "bc")')
-    px.cursor.set(int(first_paren[0]), int(first_paren[1]))
+    px.cursor.set((int(first_paren[0])-1, int(first_paren[1])))
     vim.command('normal %')
     vim.command('exec "normal ha,\<CR>"')
 
