@@ -1,22 +1,32 @@
 # coding=utf8
-import re
 
 import px.completion
 import px.buffer
 
 from px.langs.go.completion import DefaultCompleter
 
+
 class UnusedIdentifierCompleter(DefaultCompleter):
+
     @staticmethod
     def _default_identifier_extractor(line_number, line):
         buffer = px.buffer.get()
 
         identifiers = px.identifiers._default_extractor(line_number, line)
         for identifier in identifiers:
-            if UnusedIdentifierCompleter._is_just_assigned(
-                buffer, identifier
+            seen = identifier.name in UnusedIdentifierCompleter._seen
+            if not seen and UnusedIdentifierCompleter._is_just_assigned(
+                buffer,
+                identifier
             ):
                 yield identifier
+            else:
+                UnusedIdentifierCompleter._seen[identifier.name] = True
+
+    def reset(self):
+        super(self.__class__, self).reset()
+
+        UnusedIdentifierCompleter._seen = {}
 
     @staticmethod
     def _is_just_assigned(buffer, identifier):

@@ -63,6 +63,20 @@ class DefaultCompleter(px.completion.IdentifierCompleter):
 
         line_number = identifier.position[0]
         column_number = identifier.position[1] - 1
+
+        prefix_line_number = line_number
+        prefix_column_number = column_number
+        while prefix_line_number >= 0:
+            prefix = buffer[prefix_line_number][:prefix_column_number].strip()
+            if prefix == '':
+                prefix_line_number -= 1
+                prefix_column_number = -1
+            else:
+                if prefix[-1] != ',':
+                    return False
+                else:
+                    break
+
         test_buffer = ""
         while line_number >= 0:
             if column_number < 0:
@@ -84,8 +98,10 @@ class DefaultCompleter(px.completion.IdentifierCompleter):
             elif char in pairs.keys():
                 if not should_skip((line_number, column_number)):
                     if skip_counters[pairs[char]] == 0:
-                        if re.search(r'(\W|^)func(\s+\([\w\s*]+\))?\s+\w+\($',
-                                buffer[line_number][:column_number+1]):
+                        if re.search(
+                            r'(\W|^)func(\s+\([\w\s*]+\))?(\s+\w+)?\($',
+                            buffer[line_number][:column_number+1]
+                        ):
                             return True
                         else:
                             return False
