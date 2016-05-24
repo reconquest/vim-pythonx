@@ -37,7 +37,10 @@ class IdentifierCompleter(object):
 
     def should_reset(self, cursor):
         if not self._start_position:
-            return False
+            if self._completion:
+                return True
+            else:
+                return False
 
         completed_cursor_position = (
             self._start_position[0],

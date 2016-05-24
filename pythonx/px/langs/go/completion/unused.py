@@ -7,12 +7,15 @@ from px.langs.go.completion import DefaultCompleter
 
 
 class UnusedIdentifierCompleter(DefaultCompleter):
-
     @staticmethod
     def _default_identifier_extractor(line_number, line):
         buffer = px.buffer.get()
 
-        identifiers = px.identifiers._default_extractor(line_number, line)
+        identifiers = DefaultCompleter._default_identifier_extractor(
+            line_number,
+            line
+        )
+
         for identifier in identifiers:
             seen = identifier.name in UnusedIdentifierCompleter._seen
             if not seen and UnusedIdentifierCompleter._is_just_assigned(
@@ -24,7 +27,7 @@ class UnusedIdentifierCompleter(DefaultCompleter):
                 UnusedIdentifierCompleter._seen[identifier.name] = True
 
     def reset(self):
-        super(self.__class__, self).reset()
+        super(UnusedIdentifierCompleter, self).reset()
 
         UnusedIdentifierCompleter._seen = {}
 
@@ -48,6 +51,6 @@ class UnusedIdentifierCompleter(DefaultCompleter):
         return False
 
     def __init__(self):
-        super(self.__class__, self).__init__()
+        super(UnusedIdentifierCompleter, self).__init__()
 
         self.set_identifier_extractor(self._default_identifier_extractor)

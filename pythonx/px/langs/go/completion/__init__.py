@@ -5,7 +5,20 @@ import re
 import px.completion
 import px.buffer
 
+
 class DefaultCompleter(px.completion.IdentifierCompleter):
+    @staticmethod
+    def _default_identifier_extractor(line_number, line):
+        buffer = px.buffer.get()
+
+        identifiers = px.identifiers._default_extractor(line_number, line)
+        for identifier in identifiers:
+            if not DefaultCompleter._is_struct_instantiation(
+                buffer,
+                identifier
+            ):
+                yield identifier
+
     @staticmethod
     def _default_skipper(identifier):
         if identifier.name == '_':
@@ -45,6 +58,17 @@ class DefaultCompleter(px.completion.IdentifierCompleter):
             return False
 
     @staticmethod
+    def _is_struct_instantiation(buffer, identifier):
+        offset = identifier.position[1]+len(identifier.name)
+        if offset >= len(buffer[identifier.position[0]]):
+            return False
+
+        if buffer[identifier.position[0]][offset] == '{':
+            return True
+        else:
+            return False
+
+    @staticmethod
     def _is_func_argument(
         buffer, identifier,
         should_skip=px.syntax.is_string
@@ -77,7 +101,6 @@ class DefaultCompleter(px.completion.IdentifierCompleter):
                 else:
                     break
 
-        test_buffer = ""
         while line_number >= 0:
             if column_number < 0:
                 line_number -= 1
@@ -121,3 +144,8 @@ class DefaultCompleter(px.completion.IdentifierCompleter):
             return True
         else:
             return False
+
+    def __init__(self):
+        super(DefaultCompleter, self).__init__()
+
+        self.set_identifier_extractor(self._default_identifier_extractor)

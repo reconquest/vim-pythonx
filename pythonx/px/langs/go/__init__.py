@@ -141,6 +141,18 @@ def is_switch(buffer, line):
             return False
 
 
+def is_select(buffer, line):
+    bracket_line = get_bracket_line(buffer, line)
+    if not bracket_line:
+            return False
+
+    bracket_line_contents = buffer[bracket_line]
+    if bracket_line_contents.strip().startswith('select '):
+            return True
+    else:
+            return False
+
+
 def is_func_declaration(buffer, line):
     current_line = line
 
