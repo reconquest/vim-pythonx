@@ -8,7 +8,11 @@ import px.langs.go
 
 
 def guess_package_name_from_file_name(path):
-    basename = os.path.basename(os.path.dirname(os.path.abspath(path)))
+    dirname = os.path.dirname(os.path.abspath(path))
+    if os.path.exists(dirname+"/main.go"):
+        return 'main'
+
+    basename = os.path.basename(dirname)
 
     if re.match(r'^\w+$', basename):
         return basename
