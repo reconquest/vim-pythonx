@@ -53,4 +53,5 @@ class UnusedIdentifierCompleter(DefaultCompleter):
     def __init__(self):
         super(UnusedIdentifierCompleter, self).__init__()
 
+        self._seen = {}
         self.set_identifier_extractor(self._default_identifier_extractor)
