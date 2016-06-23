@@ -10,8 +10,6 @@ import px.identifiers
 import px.buffer
 import px.syntax
 
-import completion
-
 from autoimport import Autoimporter
 from completion import DefaultCompleter
 from completion.unused import UnusedIdentifierCompleter
@@ -188,6 +186,7 @@ const_re = re.compile('^const ')
 type_re = re.compile('^type ')
 var_re = re.compile('^var ')
 func_re = re.compile('^func ')
+package_re = re.compile('^package ')
 
 
 def goto_re(regexp):
@@ -218,7 +217,7 @@ def goto_re_first_before_cursor(regexp):
 
 
 def goto_const():
-    return goto_re(const_re) or goto_re(func_re)
+    return goto_re(const_re) or goto_re(package_re) or goto_re(func_re)
 
 
 def goto_type():
