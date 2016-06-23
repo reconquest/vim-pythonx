@@ -27,7 +27,11 @@ class UnusedIdentifierCompleter(DefaultCompleter):
                 UnusedIdentifierCompleter._seen[identifier.name] = True
 
     def reset(self):
-        super(UnusedIdentifierCompleter, self).reset()
+        try:
+            super(UnusedIdentifierCompleter, self).reset()
+        except:
+            print(self)
+            raise
 
         UnusedIdentifierCompleter._seen = {}
 
