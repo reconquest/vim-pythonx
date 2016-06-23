@@ -37,11 +37,6 @@ class UnusedIdentifierCompleter(DefaultCompleter):
 
     @staticmethod
     def _is_just_assigned(buffer, identifier):
-        if DefaultCompleter._is_passed_by_address(
-            buffer, identifier
-        ):
-            return True
-
         if DefaultCompleter._is_assigned(
             buffer, identifier
         ):
