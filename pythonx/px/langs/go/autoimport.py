@@ -45,7 +45,10 @@ class Autoimporter(object):
         except Exception:
             pass
 
-        if info != "" and re.match("^var \w+", info):
+        if info == "":
+            return
+
+        if re.match("^(var|type) \w+", info):
             return
 
         identifier_data = px.identifiers.get_under_cursor(
