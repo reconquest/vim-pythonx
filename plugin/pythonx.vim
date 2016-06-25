@@ -4,7 +4,7 @@ augroup px_langs_go
     au!
     au FileType go py import px.langs.go
     au FileType go inoremap
-        \ <silent> <buffer> . <C-O>:py px.langs.go.autoimport_at_cursor()<CR>.
+        \ <silent> <buffer> . <Left><C-\><C-O>:py px.langs.go.autoimport_at_cursor()<CR><Right>.
 augroup END
 
 inoremap <silent> <C-L> <C-\><C-O>:call pythonx#CompleteIdentifier()<CR>
