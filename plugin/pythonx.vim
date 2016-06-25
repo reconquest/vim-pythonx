@@ -21,3 +21,7 @@ function! pythonx#CompleteIdentifier()
 endfunction!
 
 py px.autocommands.enable_cursor_moved_callbacks()
+
+command! -nargs=0 -bar
+    \ PythonxGoAutoimportResetCache
+    \ py px.langs.go.autoimport_reset_cache()

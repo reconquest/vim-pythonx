@@ -329,6 +329,10 @@ def autoimport_at_cursor():
     _DefaultAutoimporter.autoimport_at_cursor()
 
 
+def autoimport_reset_cache():
+    _DefaultAutoimporter.reset()
+
+
 def get_not_used_identifier_completion(
     identifiers=[],
     should_skip=UnusedIdentifierCompleter._default_skipper

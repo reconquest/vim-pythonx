@@ -35,6 +35,9 @@ class Autoimporter(object):
 
         self._exclude = exclude
 
+    def reset(self):
+        self._cached_packages = None
+
     def autoimport_at_cursor(self):
         if px.syntax.is_string(px.cursor.get()):
             return
