@@ -16,22 +16,24 @@ class UnusedIdentifierCompleter(DefaultCompleter):
             line
         )
 
-        for identifier in identifiers:
-            seen = identifier.name in UnusedIdentifierCompleter._seen
-            if not seen and UnusedIdentifierCompleter._is_just_assigned(
-                buffer,
-                identifier
-            ):
-                yield identifier
-            else:
-                UnusedIdentifierCompleter._seen[identifier.name] = True
+        try:
+            for identifier in identifiers:
+                seen = identifier.name in UnusedIdentifierCompleter._seen
+                if not seen and UnusedIdentifierCompleter._is_just_assigned(
+                    buffer,
+                    identifier
+                ):
+                    yield identifier
+                else:
+                    UnusedIdentifierCompleter._seen[identifier.name] = True
+        except:
+            pass
 
     def reset(self):
         try:
             super(UnusedIdentifierCompleter, self).reset()
         except:
-            print(self)
-            raise
+            pass
 
         UnusedIdentifierCompleter._seen = {}
 
