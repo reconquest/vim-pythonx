@@ -1,10 +1,21 @@
 py import px.langs
 
+fun! s:RememberBlockVisualState()
+    let b:_px_langs_go_autoimport_block_visual = 1
+    return 'I'
+endfun
+
 augroup px_langs_go
     au!
     au FileType go py import px.langs.go
+
+    au FileType go vnoremap <expr> I <SID>RememberBlockVisualState()
+    au FileType go au InsertLeave <buffer>
+            \ unlet! b:_px_langs_go_autoimport_block_visual
     au FileType go inoremap
-        \ <silent> <buffer> . <Left><C-\><C-O>:py px.langs.go.autoimport_at_cursor()<CR><Right>.
+        \ <silent> <buffer> . .<C-R>=
+            \ exists('b:_px_langs_go_autoimport_block_visual') \|\|
+                \ pyeval('px.langs.go.autoimport_at_cursor()') ? '' : ''<CR>
 augroup END
 
 inoremap <silent> <C-L> <C-\><C-O>:call pythonx#CompleteIdentifier()<CR>
