@@ -123,6 +123,8 @@ def is_type_declaration(buffer, line):
     bracket_line_contents = buffer[bracket_line]
     if bracket_line_contents.strip().startswith('type '):
             return True
+    elif bracket_line_contents.strip().endswith('struct {'):
+            return True
     else:
             return False
 
@@ -251,7 +253,7 @@ def get_gocode_complete(full=True):
     cursor = px.cursor.get()
     buffer = px.buffer.get()
 
-    line_till_cursor =  buffer[cursor[0]][:cursor[1]]
+    line_till_cursor = buffer[cursor[0]][:cursor[1]]
     function_name = re.search(r'\w+\.\w+$', line_till_cursor).group(0)
 
     # removing 'func '
