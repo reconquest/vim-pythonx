@@ -44,4 +44,8 @@ def get_names(position):
 
 
 def is_string(cursor):
-    return 'String' in get_names(cursor)
+    return 'String' in get_names(cursor) or is_comment(cursor)
+
+
+def is_comment(cursor):
+    return 'Comment' in get_names(cursor)

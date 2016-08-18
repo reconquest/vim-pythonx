@@ -39,7 +39,12 @@ class Autoimporter(object):
         self._cached_packages = None
 
     def autoimport_at_cursor(self):
-        if px.syntax.is_string(px.cursor.get()):
+        cursor = px.cursor.get()
+
+        if px.syntax.is_string(cursor):
+            return
+
+        if cursor[1] != 0 and px.syntax.is_comment((cursor[0], cursor[1]-1)):
             return
 
         info = ""
