@@ -44,8 +44,17 @@ def get_names(position):
 
 
 def is_string(cursor):
-    return 'String' in get_names(cursor) or is_comment(cursor)
+    return 'String' in get_names(cursor)
 
 
-def is_comment(cursor):
-    return 'Comment' in get_names(cursor)
+# lookbehind=True will match previous character as well due weird syntax
+# identification in vim, when last character in comment is not identified
+# as comment.
+def is_comment(cursor, lookbehind=True):
+    comment = 'Comment' in get_names(cursor)
+
+    if lookbehind:
+        if cursor[1] != 0 and is_comment((cursor[0], cursor[1]-1), False):
+            return True
+
+    return comment

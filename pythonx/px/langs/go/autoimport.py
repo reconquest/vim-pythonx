@@ -44,7 +44,7 @@ class Autoimporter(object):
         if px.syntax.is_string(cursor):
             return
 
-        if cursor[1] != 0 and px.syntax.is_comment((cursor[0], cursor[1]-1)):
+        if px.syntax.is_comment(cursor):
             return
 
         info = ""
