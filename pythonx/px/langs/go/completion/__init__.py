@@ -24,6 +24,9 @@ class DefaultCompleter(px.completion.IdentifierCompleter):
         if identifier.name == '_':
             return True
         else:
+            if px.syntax.get_name(identifier.position) in ['goErr']:
+                return False
+
             return px.completion.IdentifierCompleter._default_skipper(
                 identifier
             )
