@@ -10,6 +10,7 @@ function! pythonx#autoimport()
     if !exists('b:_px_langs_go_autoimport_block_visual')
         execute "py" "px.langs.go.autoimport_at_cursor()"
     endif
+    return ''
 endfunction!
 
 
@@ -21,7 +22,7 @@ augroup px_langs_go
     au FileType go au InsertLeave <buffer>
             \ unlet! b:_px_langs_go_autoimport_block_visual
     au FileType go inoremap
-        \ <silent> <buffer> . <C-O>:call pythonx#autoimport()<CR>.
+        \ <silence> <buffer> . <C-R>=pythonx#autoimport()<CR><ESC>a.
 augroup END
 
 inoremap <silent> <C-L> <C-\><C-O>:call pythonx#CompleteIdentifier()<CR>
