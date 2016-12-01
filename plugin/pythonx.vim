@@ -22,7 +22,7 @@ augroup px_langs_go
     au FileType go au InsertLeave <buffer>
             \ unlet! b:_px_langs_go_autoimport_block_visual
     au FileType go inoremap
-        \ <silence> <buffer> . <C-R>=pythonx#autoimport()<CR><ESC>a.
+        \ <silent> <buffer> . <C-\><C-O>:call pythonx#autoimport()<CR>.
 augroup END
 
 inoremap <silent> <C-L> <C-\><C-O>:call pythonx#CompleteIdentifier()<CR>
