@@ -32,7 +32,10 @@ def extract_prev_method_binding(buffer, cursor):
 
         if matches != []:
             type_name = matches[-1]
-            object_name = re.findall(r'(\w[^A-Z]+)', type_name)[-1].lower()
+            object_name = re.findall(
+                r'(\w[^A-Z]+|[A-Z_-]+)',
+                type_name
+            )[-1].lower()
 
             return (object_name, type_name)
         else:
