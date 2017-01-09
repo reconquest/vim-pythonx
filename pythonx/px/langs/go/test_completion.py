@@ -1,9 +1,11 @@
 # coding=utf8
 
 import unittest
-
-import completion.unused
 import collections
+
+import px.langs.go.completion as completion
+import px.langs.go.completion.unused as unused
+
 
 ID = collections.namedtuple('ID', ['position'])
 

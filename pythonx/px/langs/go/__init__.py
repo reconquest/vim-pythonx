@@ -10,9 +10,9 @@ import px.identifiers
 import px.buffer
 import px.syntax
 
-from autoimport import Autoimporter
-from completion import DefaultCompleter
-from completion.unused import UnusedIdentifierCompleter
+from px.langs.go.autoimport import Autoimporter
+from px.langs.go.completion import DefaultCompleter
+from px.langs.go.completion.unused import UnusedIdentifierCompleter
 
 
 GOROOT = subprocess.check_output(['go', 'env', 'GOROOT']).strip()

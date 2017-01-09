@@ -2,10 +2,10 @@
 
 import unittest
 
-import whitespaces
-import identifiers
+import px.whitespaces as whitespaces
+import px.identifiers as identifiers
 
-from identifiers import Identifier
+from px.identifiers import Identifier
 
 
 class CommonTestCase(unittest.TestCase):
