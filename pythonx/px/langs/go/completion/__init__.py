@@ -91,18 +91,18 @@ class DefaultCompleter(px.completion.IdentifierCompleter):
         line_number = identifier.position[0]
         column_number = identifier.position[1] - 1
 
-        prefix_line_number = line_number
-        prefix_column_number = column_number
-        while prefix_line_number >= 0:
-            prefix = buffer[prefix_line_number][:prefix_column_number].strip()
-            if prefix == '':
-                prefix_line_number -= 1
-                prefix_column_number = -1
-            else:
-                if prefix[-1] != ',':
-                    return False
-                else:
-                    break
+        # prefix_line_number = line_number
+        # prefix_column_number = column_number
+        # while prefix_line_number >= 0:
+        #     prefix = buffer[prefix_line_number][:prefix_column_number].strip()
+        #     if prefix == '':
+        #         prefix_line_number -= 1
+        #         prefix_column_number = -1
+        #     else:
+        #         if prefix[-1] != ',':
+        #             return False
+        #         else:
+        #             break
 
         while line_number >= 0:
             if column_number < 0:
