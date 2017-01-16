@@ -23,7 +23,7 @@ def wrap_for_filetype(function_name):
 
     try:
         module = importlib.import_module(
-            'px.langs.' + px.buffer.get().options['filetype']
+            'px.langs.' + str(px.buffer.get().options['filetype'])
         )
     except ImportError:
         module = common_module
