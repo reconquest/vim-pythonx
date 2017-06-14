@@ -17,6 +17,15 @@ def guess_package_name_from_file_name(path):
     if re.match(r'^\w+$', basename):
         return basename
     else:
+        gofiles = glob.glob(os.path.join(dirname, "*.go"))
+
+        if gofiles:
+            for gofile in gofiles:
+                package_name = get_package_name_from_file(gofile)
+
+                if package_name:
+                    return package_name
+
         return 'main'
 
 
