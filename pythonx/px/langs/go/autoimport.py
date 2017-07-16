@@ -53,8 +53,8 @@ class Autoimporter(object):
         except Exception:
             pass
 
-        if info != "" and re.match("^(var|type) \w+", info):
-                return
+        if info != "" and re.match("^(var|type|package) \w+", info):
+            return
 
         identifier_data = px.identifiers.get_under_cursor(
             px.buffer.get(),
@@ -154,7 +154,7 @@ class Autoimporter(object):
             # os.walk()
             dirs[:] = self._filter_exclude(dirs)
 
-            go_file = self._find_first_go_file(files)
+            go_file = self._find_first_go_package_file(package_dir, files)
 
             # if no go files found and parent directory already has
             # a package, prune directory
@@ -192,11 +192,14 @@ class Autoimporter(object):
 
         return filtered
 
-    def _find_first_go_file(self, files):
+    def _find_first_go_package_file(self, dir, files):
         for file in files:
             if file.endswith('_test.go'):
                 continue
 
             if file.endswith('.go'):
-                return file
-                break
+                package = px.langs.go.packages.get_package_name_from_file(
+                    dir + "/" + file
+                )
+                if package != "main":
+                    return file
