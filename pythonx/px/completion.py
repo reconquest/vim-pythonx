@@ -56,6 +56,7 @@ class IdentifierCompleter(object):
         self._current_prefix = ''
         self._start_position = None
         self._completion = None
+        self._buffer = None
 
     def get_completion(self):
         return self._completion
@@ -73,6 +74,10 @@ class IdentifierCompleter(object):
         identifier = px.identifiers.get_under_cursor(
             buffer, cursor, self._identifier_matcher,
         )
+
+        if self._buffer != buffer.number:
+            self._completion = None
+            self._buffer = None
 
         if not identifiers:
             search_start = cursor
@@ -96,6 +101,7 @@ class IdentifierCompleter(object):
             return identifier, None
 
         self._completion = new_identifier
+        self._buffer = buffer.number
 
         return identifier, new_identifier
 
