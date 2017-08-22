@@ -21,6 +21,7 @@ DEFAULT_EXCLUDE = [
     'tests',
     'test',
     'vendor',
+    'internal', # case for Go internals such as internal/pprof/profile
 ]
 
 
