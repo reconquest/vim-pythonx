@@ -50,7 +50,7 @@ class Autoimporter(object):
 
         info = ""
         try:
-            info = vim.eval('go#complete#GetInfo()')
+            info = px.go.gocode_get_info()
         except Exception:
             pass
 
