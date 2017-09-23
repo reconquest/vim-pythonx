@@ -59,7 +59,7 @@ class Autoimporter(object):
 
         identifier_data = px.identifiers.get_under_cursor(
             px.buffer.get(),
-            (px.cursor.get()[0], px.cursor.get()[1]+1),
+            (px.cursor.get()[0], px.cursor.get()[1]),
         )
 
         if not identifier_data:
