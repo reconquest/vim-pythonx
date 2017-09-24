@@ -8,6 +8,7 @@ import collections
 import px.buffer
 import px.syntax
 import px.cursor
+import px.langs.go
 import px.langs.go.packages
 
 
@@ -50,9 +51,9 @@ class Autoimporter(object):
 
         info = ""
         try:
-            info = px.go.gocode_get_info()
+            info = px.langs.go.gocode_get_info()
         except Exception:
-            pass
+            raise
 
         if info != "" and re.match("^(var|type|package) \w+", info):
             return
