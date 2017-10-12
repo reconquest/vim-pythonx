@@ -33,7 +33,7 @@ class UnusedIdentifierCompleter(DefaultCompleter):
         try:
             super(UnusedIdentifierCompleter, self).reset()
         except:
-            pass
+            raise
 
         UnusedIdentifierCompleter._seen = {}
 
