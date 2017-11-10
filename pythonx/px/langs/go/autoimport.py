@@ -49,15 +49,6 @@ class Autoimporter(object):
         if px.syntax.is_comment(cursor):
             return
 
-        info = ""
-        try:
-            info = px.langs.go.gocode_get_info()
-        except Exception:
-            raise
-
-        if info != "" and re.match("^(var|type|package) \w+", info):
-            return
-
         identifier_data = px.identifiers.get_under_cursor(
             px.buffer.get(),
             (px.cursor.get()[0], px.cursor.get()[1]),
@@ -68,7 +59,19 @@ class Autoimporter(object):
 
         identifier, _ = identifier_data
 
+        if not identifier:
+            return
+
         if identifier.count('.') > 1:
+            return
+
+        info = ""
+        try:
+            info = px.langs.go.gocode_get_info()
+        except Exception:
+            raise
+
+        if info != "" and re.match("^(var|type|package) \w+", info):
             return
 
         possible_package = identifier.split('.')[0]
