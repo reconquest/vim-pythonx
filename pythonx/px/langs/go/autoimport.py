@@ -78,7 +78,6 @@ class Autoimporter(object):
             return
 
         possible_package = identifier.split('.')[0]
-        self.list_imports()
         import_path = self.get_import_path_for_identifier(possible_package)
         if not import_path:
             return
