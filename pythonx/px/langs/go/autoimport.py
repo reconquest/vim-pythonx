@@ -4,6 +4,7 @@ import os
 import re
 import vim
 import collections
+import subprocess
 
 import px.buffer
 import px.syntax
@@ -34,11 +35,13 @@ class Autoimporter(object):
     ):
         self._cache_path = cache_path
         self._cached_packages = None
+        self._cached_imports = None
 
         self._exclude = exclude
 
     def reset(self):
         self._cached_packages = None
+        self._cached_imports = None
 
     def autoimport_at_cursor(self):
         cursor = px.cursor.get()
@@ -75,6 +78,7 @@ class Autoimporter(object):
             return
 
         possible_package = identifier.split('.')[0]
+        self.list_imports()
         import_path = self.get_import_path_for_identifier(possible_package)
         if not import_path:
             return
@@ -82,6 +86,15 @@ class Autoimporter(object):
         vim.command('GoImport {}'.format(import_path))
 
     def get_import_path_for_identifier(self, identifier):
+        all_imports = self.get_all_imports()
+
+        imports = self.list_imports()
+        for import_path in imports:
+            if import_path in all_imports:
+                package = all_imports[import_path]
+                if package == identifier:
+                    return import_path
+
         packages = self.get_all_packages()
         if identifier not in packages:
             return None
@@ -107,11 +120,35 @@ class Autoimporter(object):
                 lines.append(file + ':' + package)
             cache.write('\n'.join(lines))
 
+    def list_imports(self):
+        process = subprocess.Popen(
+            [
+                "go",
+                "list",
+                "-f",
+                "{{ range $path := .Imports}}{{$path}}{{\"\\n\"}}{{end}}"
+            ],
+            stdout=subprocess.PIPE
+        )
+        output, _ = process.communicate()
+        lines = output.split("\n")
+        return lines
+
+
+    def get_all_imports(self):
+        if self._cached_imports:
+            return self._cached_imports
+
+        self.get_all_packages()
+
+        return self._cached_imports
+
     def get_all_packages(self):
         if self._cached_packages:
             return self._cached_packages
 
         packages = {}
+        imports = {}
 
         imports_data = collections.OrderedDict(
             sorted(self.get_imports_data().items(), key=lambda x: len(x[0]))
@@ -132,11 +169,15 @@ class Autoimporter(object):
             if package not in packages:
                 packages[package] = import_path
 
+            if import_path not in imports:
+                imports[import_path] = package
+
             new_file_package_cache[file] = package
 
         self._write_file_package_cache(new_file_package_cache)
 
         self._cached_packages = packages
+        self._cached_imports = imports
 
         return packages
 
