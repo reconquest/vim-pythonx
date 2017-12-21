@@ -5,6 +5,7 @@ import re
 import vim
 import collections
 import subprocess
+import json
 
 import px.buffer
 import px.syntax
@@ -38,6 +39,32 @@ class Autoimporter(object):
         self._cached_imports = None
 
         self._exclude = exclude
+
+    def get_cache_path_packages(self):
+        return os.getenv('HOME')+'/.cache/vim-pythonx.autoimport.packages'
+
+    def get_cache_path_imports(self):
+        return os.getenv('HOME')+'/.cache/vim-pythonx.autoimport.imports'
+
+    def load_cache_packages(self):
+        path = self.get_cache_path_packages()
+        if not os.path.exists(path):
+            return None
+        self._cached_packages = json.load(path)
+
+    def load_cache_imports(self):
+        path = self.get_cache_path_imports()
+        if not os.path.exists(path):
+            return None
+        self._cached_imports = json.load(path)
+
+    def save_cache_packages(self):
+        with open(self.get_cache_path_packages(), 'w') as outfile:
+            json.dump(self._cached_packages, outfile)
+
+    def save_cache_imports(self):
+        with open(self.get_cache_path_imports(), 'w') as outfile:
+            json.dump(self._cached_imports, outfile)
 
     def reset(self):
         self._cached_packages = None
@@ -177,6 +204,9 @@ class Autoimporter(object):
 
         self._cached_packages = packages
         self._cached_imports = imports
+
+        self.save_cache_packages()
+        self.save_cache_imports()
 
         return packages
 
