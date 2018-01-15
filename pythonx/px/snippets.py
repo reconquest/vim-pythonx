@@ -6,11 +6,11 @@ import px.common
 import px.buffer
 import px.autocommands
 
+option_highlight_completion = 1
 
 def _highlight_completion():
     px.autocommands.enable_highlight_auto_clear()
     px.common.highlight_completion()
-
 
 def complete_identifier_for_placeholder(
     cursor,
@@ -26,13 +26,15 @@ def complete_identifier_for_placeholder(
     cursor = (cursor[0], cursor[1] + len(current_value))
 
     if current_value != '':
-        expect_cursor_jump(cursor, _highlight_completion)
+        if option_highlight_completion == 1:
+            expect_cursor_jump(cursor, _highlight_completion)
         px.common.run_cursor_moved_callbacks()
 
         return current_value
     else:
         px.autocommands.disable_identifier_completion_auto_reset()
-        px.autocommands.disable_higlight_auto_clear()
+        if option_highlight_completion == 1:
+            px.autocommands.disable_higlight_auto_clear()
 
         if should_skip:
             _, new_identifier = completer(should_skip=should_skip)
@@ -45,7 +47,7 @@ def complete_identifier_for_placeholder(
             return ''
 
 
-def expect_cursor_jump(cursor, callback=_highlight_completion):
+def expect_cursor_jump(cursor, callback):
     px.common.register_cursor_moved_callback(
         'snippets_cursor_jump',
         cursor,
