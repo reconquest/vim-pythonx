@@ -31,32 +31,42 @@ DEFAULT_EXCLUDE = [
 class Autoimporter(object):
     def __init__(
         self,
-        cache_path=os.getenv('HOME')+'/.cache/vim-pythonx.imports',
+        cache_path=os.getenv('HOME')+'/.cache/vim-pythonx/go/autoimport',
         exclude=DEFAULT_EXCLUDE
     ):
         self._cache_path = cache_path
+        if not os.path.exists(self._cache_path):
+            os.makedirs(self._cache_path)
         self._cached_packages = None
         self._cached_imports = None
 
         self._exclude = exclude
 
+        self.load_cache_packages()
+        self.load_cache_imports()
+
     def get_cache_path_packages(self):
-        return os.getenv('HOME')+'/.cache/vim-pythonx.autoimport.packages'
+        return self._cache_path + "/packages"
 
     def get_cache_path_imports(self):
-        return os.getenv('HOME')+'/.cache/vim-pythonx.autoimport.imports'
+        return self._cache_path + "/imports"
+
+    def get_cache_path_files(self):
+        return self._cache_path + "/files"
 
     def load_cache_packages(self):
         path = self.get_cache_path_packages()
         if not os.path.exists(path):
             return None
-        self._cached_packages = json.load(path)
+        with open(path) as infile:
+            self._cached_packages = json.load(infile)
 
     def load_cache_imports(self):
         path = self.get_cache_path_imports()
         if not os.path.exists(path):
             return None
-        self._cached_imports = json.load(path)
+        with open(path) as infile:
+            self._cached_imports = json.load(infile)
 
     def save_cache_packages(self):
         with open(self.get_cache_path_packages(), 'w') as outfile:
@@ -127,12 +137,12 @@ class Autoimporter(object):
         return packages[identifier]
 
     def _read_file_package_cache(self):
-        if not os.path.exists(self._cache_path):
+        if not os.path.exists(self.get_cache_path_files()):
             return {}
 
         file_package = {}
 
-        with open(self._cache_path, 'r+') as cache:
+        with open(self.get_cache_path_files(), 'r+') as cache:
             for line in cache:
                 file, package = line.rstrip('\n').split(':')
                 file_package[file] = package
@@ -140,7 +150,7 @@ class Autoimporter(object):
         return file_package
 
     def _write_file_package_cache(self, file_package):
-        with open(self._cache_path, 'w') as cache:
+        with open(self.get_cache_path_files(), 'w') as cache:
             lines = []
             for (file, package) in file_package.items():
                 lines.append(file + ':' + package)
