@@ -89,9 +89,11 @@ class Autoimporter(object):
         if px.syntax.is_comment(cursor):
             return
 
+        buffer = px.buffer.get()
+        (line, column) = px.cursor.get()
+
         identifier_data = px.identifiers.get_under_cursor(
-            px.buffer.get(),
-            (px.cursor.get()[0], px.cursor.get()[1]),
+            buffer, (line, column),
         )
 
         if not identifier_data:
@@ -115,6 +117,7 @@ class Autoimporter(object):
             return
 
         possible_package = identifier.split('.')[0]
+
         import_path = self.get_import_path_for_identifier(possible_package)
         if not import_path:
             return
@@ -164,7 +167,8 @@ class Autoimporter(object):
                 "-f",
                 "{{ range $path := .Imports}}{{$path}}{{\"\\n\"}}{{end}}"
             ],
-            stdout=subprocess.PIPE
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE
         )
         output, _ = process.communicate()
         lines = output.split("\n")
