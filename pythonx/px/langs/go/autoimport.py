@@ -1,6 +1,8 @@
 # coding=utf8
 
 import os
+import shutil
+import os
 import re
 import vim
 import collections
@@ -80,6 +82,11 @@ class Autoimporter(object):
         self._cached_packages = None
         self._cached_imports = None
 
+    def drop_cache(self):
+        print("vim-pythonx: dropping cache")
+        shutil.rmtree(self._cache_path)
+        os.makedirs(self._cache_path)
+
     def autoimport_at_cursor(self):
         cursor = px.cursor.get()
 
@@ -124,11 +131,25 @@ class Autoimporter(object):
 
         vim.command('GoImport {}'.format(import_path))
 
-    def get_import_path_for_identifier(self, identifier):
+    def get_import_path_for_identifier(self, identifier, reset=False):
         all_imports = self.get_all_imports()
 
         imports = self.list_imports()
         for import_path in imports:
+            if not reset:
+                if not import_path in all_imports:
+                    print("vim-pythonx: unknown package is imported in the program")
+
+                    self.reset()
+                    self.drop_cache()
+
+                    print("vim-pythonx: re-caching resources")
+
+                    return self.get_import_path_for_identifier(
+                        identifier,
+                        reset=True
+                    )
+
             if import_path in all_imports:
                 package = all_imports[import_path]
                 if package == identifier:
@@ -172,6 +193,10 @@ class Autoimporter(object):
         )
         output, _ = process.communicate()
         lines = output.split("\n")
+
+        # drop last empty line
+        lines = lines[:-1]
+
         return lines
 
 
