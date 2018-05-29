@@ -138,7 +138,9 @@ class Autoimporter(object):
         for import_path in imports:
             if not reset:
                 if not import_path in all_imports:
-                    print("vim-pythonx: unknown package is imported in the program")
+                    print(
+                        "vim-pythonx: unknown package is "+
+                        "imported in the program: " + import_path)
 
                     self.reset()
                     self.drop_cache()
@@ -262,7 +264,16 @@ class Autoimporter(object):
 
         root_src_dir = os.path.join(root_dir, "src")
         last_package_dir = None
+        last_package_dir_depth = 0
+
+        max_depth_blind = 5
+
         for package_dir, dirs, files in os.walk(root_src_dir):
+            # skip vgo vendored
+            if package_dir.startswith(root_src_dir + "/v/"):
+                dirs[:] = []
+                continue
+
             # dir[:] is required because of it's not a simple slice, but
             # special object, which is used to control recursion in
             # os.walk()
@@ -274,10 +285,13 @@ class Autoimporter(object):
             # a package, prune directory
             if not go_file:
                 if last_package_dir:
-                    if package_dir.startswith(last_package_dir):
-                        dirs[:] = []
-                    else:
-                        last_package_dir = None
+                    depth = package_dir.count("/") - last_package_dir_depth
+                    if depth > max_depth_blind:
+                        if package_dir.startswith(last_package_dir):
+                            dirs[:] = []
+                        else:
+                            last_package_dir = None
+                            last_package_dir_depth = 0
                 continue
 
             # +1 stands for /
@@ -294,6 +308,7 @@ class Autoimporter(object):
             if not (last_package_dir and
                     package_dir.startswith(last_package_dir)):
                 last_package_dir = package_dir
+                last_package_dir_depth = last_package_dir.count("/")
 
         return imports
 
@@ -301,8 +316,9 @@ class Autoimporter(object):
         filtered = []
 
         for dir_name in dirs:
-            if dir_name not in self._exclude:
-                filtered.append(dir_name)
+            if not dir_name.startswith('.') and not dir_name.startswith('_'):
+                if dir_name not in self._exclude:
+                    filtered.append(dir_name)
 
         return filtered
 
