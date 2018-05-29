@@ -39,6 +39,11 @@ class UnusedIdentifierCompleter(DefaultCompleter):
 
     @staticmethod
     def _is_just_assigned(buffer, identifier):
+        if DefaultCompleter._is_type_name(
+            buffer, identifier
+        ):
+            return False
+
         if DefaultCompleter._is_assigned(
             buffer, identifier
         ):

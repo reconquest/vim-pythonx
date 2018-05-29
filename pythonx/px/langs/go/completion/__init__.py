@@ -33,6 +33,11 @@ class DefaultCompleter(px.completion.IdentifierCompleter):
 
     @staticmethod
     def _is_just_assigned(buffer, identifier):
+        if DefaultCompleter._is_type_name(
+            buffer, identifier
+        ):
+            return False
+
         if DefaultCompleter._is_passed_by_address(
             buffer, identifier
         ):
@@ -91,19 +96,6 @@ class DefaultCompleter(px.completion.IdentifierCompleter):
         line_number = identifier.position[0]
         column_number = identifier.position[1] - 1
 
-        # prefix_line_number = line_number
-        # prefix_column_number = column_number
-        # while prefix_line_number >= 0:
-        #     prefix = buffer[prefix_line_number][:prefix_column_number].strip()
-        #     if prefix == '':
-        #         prefix_line_number -= 1
-        #         prefix_column_number = -1
-        #     else:
-        #         if prefix[-1] != ',':
-        #             return False
-        #         else:
-        #             break
-
         while line_number >= 0:
             if column_number < 0:
                 line_number -= 1
@@ -137,6 +129,16 @@ class DefaultCompleter(px.completion.IdentifierCompleter):
             column_number -= 1
 
         return False
+
+    @staticmethod
+    def _is_type_name(buffer, identifier):
+        position = identifier.position
+        before_identifier = buffer[position[0]][:position[1]]
+
+        if re.match(r'.*\w+\s+\*?', before_identifier):
+            return True
+        else:
+            return False
 
     @staticmethod
     def _is_assigned(buffer, identifier):
