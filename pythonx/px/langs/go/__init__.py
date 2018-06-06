@@ -323,9 +323,7 @@ def gocode_can_complete():
 def gocode_get_info():
     line, column = px.cursor.get()
 
-    px.cursor.set((line, column - 1))
-    info = vim.eval('go#complete#GetInfo()')
-    px.cursor.set((line, column))
+    info = vim.eval('px#go#GetInfo()')
 
     return info
 
