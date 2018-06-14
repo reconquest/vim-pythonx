@@ -313,17 +313,21 @@ def get_gocode_complete(full=True):
 
 
 def gocode_can_complete():
-    info = gocode_get_info()
+    info = gocode_get_info("")
     if not info:
         return False
 
     return True
 
 
-def gocode_get_info():
+def gocode_get_info(identifier):
     line, column = px.cursor.get()
 
-    info = vim.eval('px#go#GetInfo()')
+    if identifier != "":
+        info = vim.eval("px#go#GetInfo('"+identifier+"')")
+        return info
+
+    info = vim.eval("px#go#GetInfo(expand('<cword>')")
 
     return info
 

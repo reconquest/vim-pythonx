@@ -1,6 +1,6 @@
 let s:sock_type = (has('win32') || has('win64')) ? 'tcp' : 'unix'
 
-function! px#go#GetInfo() abort
+function! px#go#GetInfo(identifier) abort
   let offset = go#util#OffsetCursor()
   let filename = s:gocodeCurrentBuffer()
   let result = s:gocodeCommand('autocomplete',
@@ -29,7 +29,7 @@ function! px#go#GetInfo() abort
     call add(infos, split(info, ',,')[0])
   endfor
 
-  let wordMatch = '\C\<' . expand("<cword>") . '\>'
+  let wordMatch = '\C\<' . a:identifier . '\>'
   " escape single quotes in wordMatch before passing it to filter
   let wordMatch = substitute(wordMatch, "'", "''", "g")
   let filtered =  filter(infos, "v:val =~ '".wordMatch."'")

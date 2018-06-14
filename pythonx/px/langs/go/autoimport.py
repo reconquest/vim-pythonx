@@ -116,7 +116,7 @@ class Autoimporter(object):
 
         info = ""
         try:
-            info = px.langs.go.gocode_get_info()
+            info = px.langs.go.gocode_get_info(identifier)
         except Exception:
             raise
 
