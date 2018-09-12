@@ -312,6 +312,10 @@ def get_gocode_complete(full=True):
     return snippet
 
 
+def get_package_path():
+    return vim.eval("px#go#GetPackagePath()")
+
+
 def gocode_can_complete():
     info = gocode_get_info("")
     if not info:

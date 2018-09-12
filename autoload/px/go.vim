@@ -93,3 +93,13 @@ function! s:gocodeCurrentBuffer() abort
   call writefile(go#util#GetLines(), file)
   return file
 endfunction
+
+function! px#go#GetPackagePath() abort
+  let command = "go list"
+  let out = go#tool#ExecuteInDir(command)
+  if go#util#ShellError() != 0
+      return -1
+  endif
+
+  return split(out, '\n')[0]
+endfunction

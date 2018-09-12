@@ -132,6 +132,11 @@ class Autoimporter(object):
         vim.command('GoImport {}'.format(import_path))
 
     def get_import_path_for_identifier(self, identifier, reset=False):
+        cwd = os.getcwd()
+        local_imports = self.get_packages_from_dir(cwd)
+        if identifier in local_imports:
+            return local_imports[identifier]
+
         all_imports = self.get_all_imports()
 
         imports = self.list_imports()
@@ -250,18 +255,53 @@ class Autoimporter(object):
 
         return packages
 
+
+    def get_packages_from_dir(self, directory):
+        packages = {}
+        imports = {}
+
+        # support local imports only in GOPATH for now
+        root_dir = os.path.join(px.langs.go.GOPATH, "src")
+        if not directory.startswith(root_dir):
+            return packages
+
+        imports_data = collections.OrderedDict(
+            sorted(
+                self._get_imports_from_dir(directory, root_dir).items(),
+                key=lambda x: len(x[0])
+            )
+        )
+
+        for (import_path, file) in imports_data.items():
+            package = px.langs.go.packages.get_package_name_from_file(file)
+
+            if not package:
+                continue
+
+            if package not in packages:
+                packages[package] = import_path
+
+            if import_path not in imports:
+                imports[import_path] = package
+
+        return packages
+
     def get_imports_data(self):
         imports = {}
 
         for root_dir in [px.langs.go.GOPATH, px.langs.go.GOROOT]:
-            imports.update(self._get_imports_from_dir(root_dir))
+            imports.update(self._get_imports_from_dir(
+                os.path.join(root_dir, "src")
+            ))
 
         return imports
 
-    def _get_imports_from_dir(self, root_dir):
+    def _get_imports_from_dir(self, root_src_dir, root_dir=None):
         imports = {}
 
-        root_src_dir = os.path.join(root_dir, "src")
+        if root_dir is None:
+            root_dir = root_src_dir
+
         last_package_dir = None
         last_package_dir_depth = 0
 
@@ -293,11 +333,14 @@ class Autoimporter(object):
                             last_package_dir_depth = 0
                 continue
 
-            # +1 stands for /
-            package_import = package_dir[len(root_src_dir)+1:]
+            if root_src_dir != package_dir:
+                # +1 stands for /
+                package_import = package_dir[len(root_dir)+1:]
+            else:
+                package_import = os.path.basename(package_dir)
 
             # fix for standard libraries
-            if root_dir == px.langs.go.GOROOT:
+            if root_dir.startswith(px.langs.go.GOROOT):
                 if package_import[:4] == "pkg/":
                     package_import = package_import[4:]
 
