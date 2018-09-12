@@ -249,7 +249,7 @@ def is_before_first_func(buffer, line):
 
 
 def get_gocode_complete(full=True):
-    info = gocode_get_info()
+    info = gocode_get_info("")
     if not info:
         return ""
 
@@ -331,7 +331,7 @@ def gocode_get_info(identifier):
         info = vim.eval("px#go#GetInfo('"+identifier+"')")
         return info
 
-    info = vim.eval("px#go#GetInfo(expand('<cword>')")
+    info = vim.eval("px#go#GetInfo(expand('<cword>'))")
 
     return info
 
