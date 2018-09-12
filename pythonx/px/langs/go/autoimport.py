@@ -333,7 +333,7 @@ class Autoimporter(object):
                             last_package_dir_depth = 0
                 continue
 
-            if root_src_dir != package_dir:
+            if root_dir != package_dir:
                 # +1 stands for /
                 package_import = package_dir[len(root_dir)+1:]
             else:
