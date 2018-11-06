@@ -8,7 +8,9 @@ import vim
 import collections
 import subprocess
 import json
+# import logging
 
+import px
 import px.buffer
 import px.syntax
 import px.cursor
@@ -133,6 +135,7 @@ class Autoimporter(object):
 
     def get_import_path_for_identifier(self, identifier, reset=False):
         cwd = os.getcwd()
+
         local_imports = self.get_packages_from_dir(cwd)
         if identifier in local_imports:
             return local_imports[identifier]
@@ -193,7 +196,8 @@ class Autoimporter(object):
                 "go",
                 "list",
                 "-f",
-                "{{ range $path := .Imports}}{{$path}}{{\"\\n\"}}{{end}}"
+                "{{ range $path := .Imports}}{{$path}}{{\"\\n\"}}{{end}}",
+                "./..."
             ],
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE

@@ -2,7 +2,7 @@
 
 import pkgutil
 import importlib
-
+import os
 
 imported = {}
 def libs(package="px"):
@@ -20,10 +20,10 @@ def libs(package="px"):
             imported.update(libs(full_name))
     return imported
 
-import logging
+# import logging
 
-logging.basicConfig(
-    filename='/tmp/pythonx.log',
-    format='%(filename)s:%(lineno)s %(funcName)s: %(message)s',
-    level=logging.DEBUG
-)
+# logging.basicConfig(
+#     filename='/tmp/vim-pythonx.log',
+#     format='%(filename)s:%(lineno)s %(funcName)s: %(message)s',
+#     level=logging.DEBUG
+# )
