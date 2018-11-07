@@ -50,7 +50,11 @@ def _get_input(str):
 def to_variable():
     selection = Selection()
 
-    var_name = _get_input('Export to Variable: ')
+    try:
+        var_name = _get_input('Export to Variable: ')
+    except:
+        return
+
     selection.set(var_name)
 
     clipboard = var_name + ' := ' + selection.get()
