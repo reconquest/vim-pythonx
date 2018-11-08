@@ -9,7 +9,14 @@ execute "py"  "px.snippets.option_highlight_completion = " . g:pythonx_highlight
 
 function! s:RememberBlockVisualState()
     let b:_px_langs_go_autoimport_block_visual = 1
+    call pythonx#unmap_autoimport()
     return 'I'
+endfunction
+
+function! s:RemoveBlockVisualState()
+    echom 'exit from insertleave'
+    call pythonx#map_autoimport()
+    unlet! b:_px_langs_go_autoimport_block_visual
 endfunction
 
 function! pythonx#autoimport()
@@ -19,15 +26,23 @@ function! pythonx#autoimport()
     return ''
 endfunction!
 
+func! pythonx#map_autoimport()
+   inoremap <silent> <buffer> . <C-\><C-O>:call pythonx#autoimport()<CR>.
+endfunc!
+
+func! pythonx#unmap_autoimport()
+    iunmap <buffer> .
+endfunc!
+
 augroup px_langs_go
     au!
     au FileType go py import px.langs.go
 
     au FileType go vnoremap <expr> I <SID>RememberBlockVisualState()
     au FileType go au InsertLeave <buffer>
-            \ unlet! b:_px_langs_go_autoimport_block_visual
-    au FileType go inoremap
-        \ <silent> <buffer> . <C-\><C-O>:call pythonx#autoimport()<CR>.
+            \ call <SID>RemoveBlockVisualState()
+
+    call pythonx#map_autoimport()
 augroup END
 
 function! pythonx#CompleteIdentifier()
@@ -41,10 +56,10 @@ function! pythonx#CompleteIdentifier()
     endif
 endfunction!
 
-inoremap <silent> <C-L> <C-\><C-O>:call pythonx#CompleteIdentifier()<CR>
-smap <C-L> <BS><C-L>
-
-py px.autocommands.enable_cursor_moved_callbacks()
+"inoremap <silent> <C-L> <C-\><C-O>:call pythonx#CompleteIdentifier()<CR>
+"smap <C-L> <BS><C-L>
+"
+"py px.autocommands.enable_cursor_moved_callbacks()
 
 command! -nargs=0 -bar
     \ PythonxGoAutoimportResetCache
