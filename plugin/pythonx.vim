@@ -42,7 +42,7 @@ augroup px_langs_go
     au FileType go au InsertLeave <buffer>
             \ call <SID>RemoveBlockVisualState()
 
-    call pythonx#map_autoimport()
+    au FileType go call pythonx#map_autoimport()
 augroup END
 
 function! pythonx#CompleteIdentifier()
