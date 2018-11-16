@@ -17,7 +17,6 @@ import px.cursor
 import px.langs.go
 import px.langs.go.packages
 
-
 DEFAULT_EXCLUDE = [
     '.git',
     '.hg',
@@ -48,6 +47,8 @@ class Autoimporter(object):
 
         self.load_cache_packages()
         self.load_cache_imports()
+
+        self.print_indexing = False
 
     def get_cache_path_packages(self):
         return self._cache_path + "/packages"
@@ -256,6 +257,11 @@ class Autoimporter(object):
 
         self.save_cache_packages()
         self.save_cache_imports()
+
+        if self.print_indexing:
+            print(
+                "vim-pythonx: indexed "+str(len(self._cached_packages))+" packages"
+            )
 
         return packages
 

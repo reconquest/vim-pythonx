@@ -10,8 +10,14 @@ import px
 import px.langs
 import px.langs.go
 
-autoimporer = px.langs.go.autoimport.Autoimporter()
+importer = px.langs.go.autoimport.Autoimporter()
 
-autoimporer.drop_cache()
+importer.drop_cache()
+importer.reset()
+
+importer.print_indexing = True
+
+print("vim-pythonx: indexing packages")
+importer.get_all_packages()
 
 # vim: ft=python
