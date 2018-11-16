@@ -1,0 +1,17 @@
+#!/bin/env python2
+
+import os
+import sys
+
+pythonx_path = os.path.join(os.path.dirname(__file__), "../pythonx")
+sys.path.append(pythonx_path)
+
+import px
+import px.langs
+import px.langs.go
+
+autoimporer = px.langs.go.autoimport.Autoimporter()
+
+autoimporer.drop_cache()
+
+# vim: ft=python
