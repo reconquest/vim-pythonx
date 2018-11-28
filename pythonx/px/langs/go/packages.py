@@ -5,9 +5,11 @@ import re
 import glob
 
 import px.langs.go
+import vim
 
 
-def guess_package_name_from_file_name(path):
+def guess_package_name_from_file_name():
+    path = vim.eval('expand("%:p")')
     dirname = os.path.dirname(os.path.abspath(path))
     if os.path.exists(dirname+"/main.go"):
         return 'main'

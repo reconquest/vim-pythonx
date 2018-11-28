@@ -16,7 +16,6 @@ def libs(package="px"):
 
         imported[full_name] = name
         if is_pkg:
-            print(full_name)
             imported.update(libs(full_name))
     return imported
 

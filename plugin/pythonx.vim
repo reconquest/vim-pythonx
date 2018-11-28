@@ -14,7 +14,6 @@ function! s:RememberBlockVisualState()
 endfunction
 
 function! s:RemoveBlockVisualState()
-    echom 'exit from insertleave'
     call pythonx#map_autoimport()
     unlet! b:_px_langs_go_autoimport_block_visual
 endfunction
