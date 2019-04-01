@@ -114,7 +114,7 @@ class Autoimporter(object):
         if not identifier:
             return
 
-        if identifier.count('.') > 1:
+        if identifier.count('.') >= 1:
             return
 
         info = ""
