@@ -11,6 +11,7 @@ import json
 # import logging
 
 import px
+import px.util
 import px.buffer
 import px.syntax
 import px.cursor
@@ -29,7 +30,6 @@ DEFAULT_EXCLUDE = [
     'vendor',
     'internal',  # case for Go internals such as internal/pprof/profile
 ]
-
 
 class Autoimporter(object):
     def __init__(
@@ -134,8 +134,26 @@ class Autoimporter(object):
 
         vim.command('GoImport {}'.format(import_path))
 
+    def parse_go_mod(self, dir):
+        path = os.path.join(dir, "go.mod")
+
+        if not os.path.exists(path):
+            return None
+
+        go_mod = {}
+
+        with open(path, 'r') as file:
+            for line in file:
+                match = re.match(r'^module (.*)$', line)
+                if match is not None:
+                    go_mod['module'] = match.group(1)
+
+        return go_mod
+
     def get_import_path_for_identifier(self, identifier, reset=False):
         cwd = os.getcwd()
+
+        go_mod = self.parse_go_mod(cwd)
 
         local_imports = self.get_packages_from_dir(cwd)
         if identifier in local_imports:
@@ -145,6 +163,16 @@ class Autoimporter(object):
 
         imports = self.list_imports()
         for import_path in imports:
+            if go_mod is not None:
+                import_path = px.util.remove_prefix(
+                    import_path,
+                    go_mod['module'] + '/vendor/'
+                )
+
+                if import_path.startswith(
+                    go_mod['module'] + '/internal/'
+                ):
+                    continue
             if not reset:
                 if not import_path in all_imports:
                     print(
@@ -317,7 +345,7 @@ class Autoimporter(object):
 
         max_depth_blind = 5
 
-        for package_dir, dirs, files in os.walk(root_src_dir):
+        for package_dir, dirs, files in os.walk(root_src_dir, followlinks=True):
             # skip vgo vendored
             if package_dir.startswith(root_src_dir + "/v/"):
                 dirs[:] = []
