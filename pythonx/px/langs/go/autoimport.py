@@ -174,7 +174,8 @@ class Autoimporter(object):
                 ):
                     continue
             if not reset:
-                if not import_path in all_imports:
+                if not import_path in all_imports \
+                    and not import_path.find('/vendor/'):
                     print(
                         "vim-pythonx: unknown package is "+
                         "imported in the program: " + import_path)
