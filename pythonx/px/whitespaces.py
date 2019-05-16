@@ -39,17 +39,23 @@ def get_indentation(line):
     return indent, line[:indent]
 
 
-def get_higher_indent(buffer, cursor):
+def get_higher_indent(buffer, cursor, current_indent=None):
     line_number, _ = cursor
 
-    current_indent, _ = get_indentation(buffer[line_number])
+    if current_indent is None:
+        current_indent, _ = get_indentation(buffer[line_number])
+
     for line in reversed(buffer[:line_number]):
         line_number -= 1
         if line == '':
             continue
 
         line_indent, _ = get_indentation(line)
+        ## return usecase.Update(ctx, userID, map[string]interface{}{
+        ## 	"buildingID": <- cursor here
+        ## }
         if current_indent > line_indent:
+        # if current_indent < line_indent:
             return (line, line_number)
 
     return None
@@ -57,8 +63,9 @@ def get_higher_indent(buffer, cursor):
 
 def match_higher_indent(buffer, cursor, pattern):
     line_number, _ = cursor
+    current_indent, _ = get_indentation(buffer[line_number])
     while True:
-        indent = get_higher_indent(buffer, (line_number, 0))
+        indent = get_higher_indent(buffer, (line_number, 0), current_indent)
         if not indent:
             return
 
@@ -79,6 +86,8 @@ def match_exact_indent(buffer, cursor, amount, pattern, direction=+1):
         if line_indent == amount:
             if re.search(pattern, line):
                 return (line_number, 0)
+        if line_indent < amount:
+            return None
 
         line_number += direction
 

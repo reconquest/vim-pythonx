@@ -9,6 +9,7 @@ import px.cursor
 import px.identifiers
 import px.buffer
 import px.syntax
+import px.whitespaces
 
 from px.langs.go.autoimport import Autoimporter
 from px.langs.go.completion import DefaultCompleter
@@ -107,15 +108,16 @@ def is_struct_bracket(buffer, line, column):
 
 
 def get_bracket_line(buffer, line):
-    while True:
-        line_contents = buffer[line]
-        if re.search(' {$', line_contents):
-                return line
+    bracket_pos = px.whitespaces.match_higher_indent(
+        buffer,
+        (line, None),
+        ' {$',
+    )
 
-        if line == 0:
-                return False
+    if bracket_pos is None:
+        return False
 
-        line = line - 1
+    return bracket_pos[1]
 
 
 def is_type_declaration(buffer, line):
@@ -133,27 +135,45 @@ def is_type_declaration(buffer, line):
 
 
 def is_switch(buffer, line):
-    bracket_line = get_bracket_line(buffer, line)
-    if not bracket_line:
-            return False
+    match = px.whitespaces.match_exact_indent_as_in_line(
+        buffer,
+        (line, None),
+        buffer[line],
+        '^\s*switch ',
+        direction=-1
+    )
 
-    bracket_line_contents = buffer[bracket_line]
-    if bracket_line_contents.strip().startswith('switch '):
-            return True
+    if match is not None:
+        return True
     else:
-            return False
+        return False
+
+def is_case(buffer, line):
+    match = px.whitespaces.match_higher_indent(
+        buffer,
+        (line, None),
+        '^\s*(case\s+|default:)'
+    )
+
+    if match is not None:
+        return True
+    else:
+        return False
 
 
 def is_select(buffer, line):
-    bracket_line = get_bracket_line(buffer, line)
-    if not bracket_line:
-            return False
+    match = px.whitespaces.match_exact_indent_as_in_line(
+        buffer,
+        (line, None),
+        buffer[line],
+        '^\s*select ',
+        direction=-1
+    )
 
-    bracket_line_contents = buffer[bracket_line]
-    if bracket_line_contents.strip().startswith('select '):
-            return True
+    if match is not None:
+        return True
     else:
-            return False
+        return False
 
 
 def is_func_declaration(buffer, line):

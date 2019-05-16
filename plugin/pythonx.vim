@@ -30,7 +30,7 @@ func! pythonx#map_autoimport()
 endfunc!
 
 func! pythonx#unmap_autoimport()
-    iunmap <buffer> .
+    silent! iunmap <buffer> .
 endfunc!
 
 augroup px_langs_go
