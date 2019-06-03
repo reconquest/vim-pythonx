@@ -220,13 +220,21 @@ class Autoimporter(object):
             cache.write('\n'.join(lines))
 
     def list_imports(self):
+        target_dir = "./..."
+        # do not run recursive go list for non-GOPATH directories since it can
+        # cause too long wait
+        # there could be used subprocess/wait with timeout, but it's available
+        # only in Python 3
+        if not os.getcwd().startswith(os.path.join(px.langs.go.GOPATH, "src")):
+            target_dir = "./"
+
         process = subprocess.Popen(
             [
                 "go",
                 "list",
                 "-f",
                 "{{ range $path := .Imports}}{{$path}}{{\"\\n\"}}{{end}}",
-                "./..."
+                target_dir,
             ],
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE
