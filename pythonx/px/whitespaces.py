@@ -64,14 +64,13 @@ def get_higher_indent(buffer, cursor, current_indent=None):
 def match_higher_indent(buffer, cursor, pattern):
     line_number, _ = cursor
     current_indent, _ = get_indentation(buffer[line_number])
-    while True:
-        indent = get_higher_indent(buffer, (line_number, 0), current_indent)
-        if not indent:
-            return
+    indent = get_higher_indent(buffer, (line_number, 0), current_indent)
+    if not indent:
+        return
 
-        line, line_number = indent
-        if re.search(pattern, line.strip()):
-            return indent
+    line, line_number = indent
+    if re.search(pattern, line.strip()):
+        return indent
 
 
 def match_exact_indent(buffer, cursor, amount, pattern, direction=+1):
