@@ -279,8 +279,13 @@ def get_gocode_complete(full=True):
     line_till_cursor = buffer[cursor[0]][:cursor[1]]
     function_name = re.search(r'\w+\.\w+$', line_till_cursor).group(0)
 
-    # removing 'func '
-    info = info[5:]
+    is_type_func = False
+    if re.match(r'type \w+ func', info):
+        is_type_func = True
+        info = re.sub(r'^type \w+ ', '', info)
+    else:
+        # removing 'func '
+        info = info[5:]
 
     if info[-1] == ')' and len(info.rsplit(') (', 2)) == 2:
         body_func, body_return = info.rsplit(') (', 2)
@@ -296,9 +301,13 @@ def get_gocode_complete(full=True):
 
     placeholder = 1
 
+    returns_many = False
+
     returns_exists = body_return != ""
     if returns_exists:
         args_return = body_return.strip().split(', ')
+        if len(args_return) > 1:
+            returns_many = True
 
         snippet_return_parts = []
         for arg in args_return:
@@ -309,15 +318,31 @@ def get_gocode_complete(full=True):
 
         snippet_return = ', '.join(snippet_return_parts)
 
-    if not full:
-        placeholder = 1
+    # XXX: what is it for?
+    # if not full:
+    #     placeholder = 1
 
     snippet_func_parts = []
     for arg in args_func:
-        snippet_func_parts.append('${' + str(placeholder) + ':' + arg + '}')
+        if is_type_func:
+            var, type = arg.split(' ', 2)
+            snippet_func_parts.append('${' + str(placeholder) + ':' +var+ '} ' + type)
+        else:
+            snippet_func_parts.append('${' + str(placeholder) + ':' + arg + '}')
+
         placeholder += 1
 
+    if is_type_func:
+        function_name = 'func'
+
     snippet_func = function_name + '(' + ', '.join(snippet_func_parts) + ')'
+
+    if is_type_func:
+        snippet_return = '${' + str(placeholder) + ':function}'
+        snippet_func += ' ' + body_return.strip()
+        if returns_many:
+            snippet_func += '(' + snip_func + ')'
+        snippet_func += ' {\n\t${0}\n}'
 
     if not full:
         if returns_exists:
@@ -351,7 +376,10 @@ def gocode_get_info(identifier):
         info = vim.eval("px#go#GetInfo('"+identifier+"')")
         return info
 
-    info = vim.eval("px#go#GetInfo(expand('<cword>'))")
+    before = px.buffer.get()[line][:column]
+    word = re.search(r'(\w+)*$', before).group(1)
+
+    info = vim.eval("px#go#GetInfo('" + word + "')")
 
     return info
 
