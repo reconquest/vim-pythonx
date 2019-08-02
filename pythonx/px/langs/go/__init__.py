@@ -287,15 +287,15 @@ def get_gocode_complete(full=True):
         # removing 'func '
         info = info[5:]
 
-    if info[-1] == ')' and len(info.rsplit(') (', 2)) == 2:
-        body_func, body_return = info.rsplit(') (', 2)
-        _, body_args_func = body_func.split('(', 2)
+    if info[-1] == ')' and len(info.rsplit(') (', 1)) == 2:
+        body_func, body_return = info.rsplit(') (', 1)
+        _, body_args_func = body_func.split('(', 1)
 
         # removing last ')'
         body_return = body_return[:-1]
     else:
-        body_func, body_return = info.rsplit(')', 2)
-        _, body_args_func = body_func.split('(', 2)
+        body_func, body_return = info.rsplit(')', 1)
+        _, body_args_func = body_func.split('(', 1)
 
     args_func = body_args_func.strip().split(', ')
 
