@@ -17,15 +17,10 @@ function! px#go#GetInfo(identifier) abort
     return ""
   endif
 
-  " only one candiate is found
-  if len(out) == 2
-    return split(out[1], ',,')[0]
-  endif
-
   " to many candidates are available, pick one that maches the word under the
   " cursor
   let infos = []
-  for info in out[1:]
+  for info in out
     call add(infos, split(info, ',,')[0])
   endfor
 
