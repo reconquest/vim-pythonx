@@ -53,9 +53,9 @@ def extract_prev_method_binding(buffer, cursor):
         else:
             return None
 
-    result = extract_from_method_definition()
+    result = extract_from_type_definition()
     if result is None:
-        result = extract_from_type_definition()
+        result = extract_from_method_definition()
 
     return result
 
