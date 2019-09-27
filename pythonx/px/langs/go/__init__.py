@@ -28,8 +28,8 @@ _UnusedIdentifierCompleter = UnusedIdentifierCompleter()
 def extract_prev_method_binding(buffer, cursor):
     search_space = px.buffer.get_before_cursor(buffer, cursor)
 
-    def extract_from_type_definition():
-        matches = re.findall(r'(?m)^type (\w+) ', search_space)
+    def extract_from_type_definition(line):
+        matches = re.findall(r'(?m)^type (\w+) ', line)
 
         if matches != []:
             type_name = matches[-1]
@@ -42,10 +42,10 @@ def extract_prev_method_binding(buffer, cursor):
         else:
             return None
 
-    def extract_from_method_definition():
+    def extract_from_method_definition(line):
         matches = re.findall(
             r'(?m)^func \(([^)]+)\s+\*?([^)]+)\) ',
-            search_space
+            line
         )
 
         if matches != []:
@@ -53,9 +53,13 @@ def extract_prev_method_binding(buffer, cursor):
         else:
             return None
 
-    result = extract_from_type_definition()
-    if result is None:
-        result = extract_from_method_definition()
+    result = None
+    for line in reversed(search_space.split('\n')):
+        result = extract_from_method_definition(line)
+        if result is None:
+            result = extract_from_type_definition(line)
+        if result:
+            break
 
     return result
 
