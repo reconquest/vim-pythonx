@@ -155,9 +155,9 @@ class Autoimporter(object):
 
         go_mod = self.parse_go_mod(cwd)
 
-        local_imports = self.get_packages_from_dir(cwd)
-        if identifier in local_imports:
-            return local_imports[identifier]
+        subpackages = self.get_subpackages_from_dir(cwd)
+        if identifier in subpackages:
+            return subpackages[identifier]
 
         all_imports = self.get_all_imports()
 
@@ -302,7 +302,7 @@ class Autoimporter(object):
         return packages
 
 
-    def get_packages_from_dir(self, directory):
+    def get_subpackages_from_dir(self, directory):
         packages = {}
         imports = {}
 
@@ -313,7 +313,7 @@ class Autoimporter(object):
 
         imports_data = collections.OrderedDict(
             sorted(
-                self._get_imports_from_dir(directory, root_dir).items(),
+                self._get_import_path_from_dir(directory, root_dir).items(),
                 key=lambda x: len(x[0])
             )
         )
@@ -336,13 +336,13 @@ class Autoimporter(object):
         imports = {}
 
         for root_dir in [px.langs.go.GOPATH, px.langs.go.GOROOT]:
-            imports.update(self._get_imports_from_dir(
+            imports.update(self._get_import_path_from_dir(
                 os.path.join(root_dir, "src")
             ))
 
         return imports
 
-    def _get_imports_from_dir(self, root_src_dir, root_dir=None):
+    def _get_import_path_from_dir(self, root_src_dir, root_dir=None):
         imports = {}
 
         if root_dir is None:
