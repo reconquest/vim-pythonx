@@ -4,8 +4,6 @@ import px.buffer
 import px.cursor
 import logging
 
-from structs import *
-
 class Selection(object):
     def _get_start_pos(self):
         return vim.current.buffer.mark('<')
