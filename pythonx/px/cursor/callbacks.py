@@ -19,7 +19,7 @@ class MovedCallbackCaller(object):
         current_pos = px.cursor.get_adjusted()
 
         new_callbacks = {}
-        for namespace, callbacks in self._callbacks.iteritems():
+        for namespace, callbacks in self._callbacks.items():
             left = []
             found = False
             for target_pos, callback in callbacks:
