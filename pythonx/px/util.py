@@ -1,6 +1,7 @@
 # coding=utf8
 
 import re
+import vim
 
 def convert_camelcase_to_snakecase(name):
     s1 = re.sub('(.)([A-Z][a-z]+)', r'\1_\2', name)

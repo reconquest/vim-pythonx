@@ -1,4 +1,4 @@
-# coding=utf8
+#06-Jan-2020	 coding=utf8
 
 import vim
 import re
@@ -14,6 +14,8 @@ import px.whitespaces
 from px.langs.go.autoimport import Autoimporter
 from px.langs.go.completion import DefaultCompleter
 from px.langs.go.completion.unused import UnusedIdentifierCompleter
+from px.langs import goto_re
+from px.langs import goto_re_first_before_cursor
 
 
 GOROOT = subprocess.check_output(['go', 'env', 'GOROOT']).strip()
@@ -217,32 +219,6 @@ var_re = re.compile('^var ')
 func_re = re.compile('^func ')
 package_re = re.compile('^package ')
 
-
-def goto_re(regexp):
-    line_number = 0
-    for line in px.buffer.get():
-        line_number += 1
-
-        if regexp.match(line):
-            px.cursor.set((line_number, 0))
-            return True
-
-    return False
-
-
-def goto_re_first_before_cursor(regexp):
-    line_number, column_number = px.cursor.get()
-
-    while True:
-        line = buffer[line_number - 1]
-        if regexp.match(line.strip()):
-            px.cursor.set((line_number, 0))
-
-        line_number -= 1
-        if line_number == 1:
-            return False
-
-    return False
 
 
 def goto_const():

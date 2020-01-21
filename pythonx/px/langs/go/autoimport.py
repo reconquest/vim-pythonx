@@ -28,7 +28,6 @@ DEFAULT_EXCLUDE = [
     'tests',
     'test',
     'vendor',
-    'internal',  # case for Go internals such as internal/pprof/profile
 ]
 
 class Autoimporter(object):
@@ -163,6 +162,9 @@ class Autoimporter(object):
 
         imports = self.list_imports()
         for import_path in imports:
+            if "/internal/" in import_path:
+                continue
+
             if go_mod is not None:
                 import_path = px.util.remove_prefix(
                     import_path,
