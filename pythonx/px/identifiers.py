@@ -2,6 +2,7 @@
 
 import re
 import collections
+import types
 
 Identifier = collections.namedtuple('Identifier', ['name', 'position'])
 
@@ -11,23 +12,26 @@ def _no_skip(*_):
 
 
 def get_last_used(identifiers, previous_match=None,
-        should_skip=_no_skip):
-    walked = {}
+        should_skip=_no_skip, walked={}):
     for identifier in identifiers:
-        if should_skip(identifier):
-            continue
-
-        if identifier in walked:
-            continue
-
-        walked[identifier.name] = True
-
-        if previous_match:
-            if previous_match.name == identifier.name:
+        if isinstance(identifier, types.GeneratorType):
+            result = get_last_used(identifier, previous_match, should_skip, walked)
+            if result:
+                return result
+        else:
+            if should_skip(identifier):
                 continue
 
-        return identifier
+            if identifier in walked:
+                continue
 
+            walked[identifier.name] = True
+
+            if previous_match:
+                if previous_match.name == identifier.name:
+                    continue
+
+            return identifier
 
 def _default_under_cursor_matcher(line_number, line):
     matches = re.search('([\w.]+)$', line)
@@ -76,10 +80,10 @@ def extract_possible_backward(
 
     identifiers = []
     if column_number > 0 and line_number >= 0:
-        identifiers += extractor(
+        identifiers += [extractor(
             line_number,
             buffer[line_number][:column_number]
-        )
+        )]
 
     while line_number > 0:
         line_number -= 1
@@ -89,6 +93,7 @@ def extract_possible_backward(
             break
 
         line = buffer[line_number]
-        identifiers += extractor(line_number, line)
+
+        identifiers += [extractor(line_number, line)]
 
     return identifiers
