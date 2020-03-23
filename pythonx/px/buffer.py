@@ -61,3 +61,15 @@ def get_prev_nonempty_line(buffer=None, cursor=None):
 
 def insert_lines_before(buffer, cursor, lines):
     buffer[cursor[0]:cursor[0]] = lines
+
+
+def get_current_line():
+    buffer = get()
+    cursor, _ = px.cursor.get()
+    return buffer[cursor]
+
+def get_current_line_before_cursor():
+    buffer = get()
+    (line, column) = px.cursor.get()
+
+    return buffer[line][:column]

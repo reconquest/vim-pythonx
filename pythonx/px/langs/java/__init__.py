@@ -42,3 +42,40 @@ def goto_constructor_setters():
 
 def _is_constructor_setter(match):
     return match.group(1) == match.group(2)
+
+
+def ensure_import(buffer, importpath):
+    i = 0
+    last_import = 0
+    while True:
+        i += 1
+        if i > len(buffer)-1:
+            break
+
+        line = buffer[i]
+
+        if line.startswith('//'):
+            continue
+
+        if line.startswith('import '):
+            item = line[7:-1]
+            last_import = i
+
+            if item == importpath:
+                return True
+
+            continue
+
+        if line.startswith('package '):
+            continue
+
+        if line.strip() == "":
+            continue
+
+        break
+
+    px.buffer.insert_lines_before(
+        buffer,
+        (last_import+1, 0),
+        ["import "+importpath + ";"]
+    )
