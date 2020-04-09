@@ -3,6 +3,8 @@ import px.langs
 import px.buffer
 import px.cursor
 import re
+import os.path
+import operator
 
 from px.langs import *
 
@@ -24,17 +26,20 @@ def get_var_name_by_class_name(name):
         name = name[0].lower() + name[1:]
     return name
 
+
 def goto_const():
     went = goto_re_first_before_cursor(const_re)
     if not went:
         return goto_re(class_re)
     return True
 
+
 def goto_private_decls():
     went = goto_re_first_before_cursor(private_decls_re)
     if not went:
         return goto_const()
     return True
+
 
 def goto_constructor_setters():
     match = find_re_first_after_cursor(constructor_setters_re, _is_constructor_setter)
@@ -43,6 +48,7 @@ def goto_constructor_setters():
         return True
     cursor = px.cursor.get()
     px.cursor.set((cursor[0]+1, cursor[1]))
+
 
 def _is_constructor_setter(match):
     return match.group(1) == match.group(2)
@@ -83,3 +89,62 @@ def ensure_import(buffer, importpath):
         (last_import+1, 0),
         ["import "+importpath + ";"]
     )
+
+
+def choose_import(candidates):
+    path = os.path.dirname(px.buffer.get().name)
+    fullpath = path
+
+    java = path.rfind('/java/')
+    if java == -1:
+        return -1
+
+    path = path[:java+len('/java/')]
+
+    votes = {}
+    for dirpath, _, files in os.walk(path):
+        for name in files:
+            if not name.endswith(".java"):
+                continue
+
+            file_imports = get_imports(os.path.join(dirpath, name))
+            for candidate in candidates:
+                if candidate in file_imports:
+                    if not candidate in votes:
+                        votes[candidate] = 1
+                    else:
+                        votes[candidate] += 1
+
+    def maxVal(kv):
+         keys = list(kv.keys())
+         values = list(kv.values())
+         return keys[values.index(max(values))]
+
+    biggest = maxVal(votes)
+    for i in range(len(candidates)):
+        if biggest == candidates[i]:
+            return i
+
+    return 1
+
+
+def get_imports(filepath):
+    result = []
+    with open(filepath) as file:
+        for line in file:
+            if line.startswith('//'):
+                continue
+
+            if line.startswith('import '):
+                item = line.rstrip()[7:-1]
+                result.append(item)
+                continue
+
+            if line.startswith('package'):
+                continue
+
+            if line.strip() == "":
+                continue
+
+            break
+    return result
