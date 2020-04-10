@@ -115,6 +115,9 @@ def choose_import(candidates):
                     else:
                         votes[candidate] += 1
 
+    if len(votes) == 0:
+        return -1
+
     def maxVal(kv):
          keys = list(kv.keys())
          values = list(kv.values())
@@ -125,7 +128,7 @@ def choose_import(candidates):
         if biggest == candidates[i]:
             return i
 
-    return 1
+    return -1
 
 
 def get_imports(filepath):
