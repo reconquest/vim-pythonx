@@ -1,6 +1,7 @@
 # coding=utf8
 
 import unittest
+import types
 
 import px.whitespaces as whitespaces
 import px.identifiers as identifiers
@@ -24,8 +25,7 @@ class CommonTestCase(unittest.TestCase):
         )
 
     def testHigherIndent(self):
-        self.assertEqual(
-            whitespaces.get_higher_indent(['a', 'b'], (1, 0)),
+        self.assertEqual( whitespaces.get_higher_indent(['a', 'b'], (1, 0)),
             None
         )
         self.assertEqual(
@@ -36,7 +36,7 @@ class CommonTestCase(unittest.TestCase):
     def testHigherIndentMatch(self):
         self.assertEqual(
             whitespaces.match_higher_indent(['a', '\tb', '\t\tc'],
-                (2, 0), 'a'),
+                (1, 0), 'a'),
             ('a', 0)
         )
         self.assertEqual(
@@ -45,14 +45,19 @@ class CommonTestCase(unittest.TestCase):
         )
 
     def testPossibleIdentifier(self):
-        self.assertEqual(
-            list(identifiers.extract_possible_backward(['a b c'], (0, 5))),
-            [
-                Identifier('c', (0, 4)),
-                Identifier('b', (0, 2)),
-                Identifier('a', (0, 0))
-            ]
+        result = identifiers.extract_possible_backward(['a b c'], (0, 5))
+        self.assertIsInstance(
+            result[0], types.GeneratorType
         )
+        for item in result:
+            self.assertEqual(
+                list(item),
+                [
+                    Identifier('c', (0, 4)),
+                    Identifier('b', (0, 2)),
+                    Identifier('a', (0, 0))
+                ]
+            )
 
     def testGetLastUsedIdentifier(self):
         test_identifiers = [
