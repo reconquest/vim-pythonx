@@ -5,7 +5,7 @@
 Just add plugin using [Plug](https://github.com/junegunn/vim-plug):
 
 ```viml
-Plug 'seletskiy/vim-pythonx'
+Plug 'reconquest/vim-pythonx'
 ```
 
 Import required py-modules in snippets files (e.g. in `go.snippets`):
