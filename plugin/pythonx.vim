@@ -4,6 +4,8 @@ pyx import px.common
 pyx import px.autocommands
 pyx import px.snippets
 
+let g:pythonx_go_info_mode = get(g:, 'pythonx_go_info_mode', 'gocode')
+
 let g:pythonx_highlight_completion = get(g:, 'pythonx_highlight_completion', 1)
 execute "pyx"  "px.snippets.option_highlight_completion = " . g:pythonx_highlight_completion
 

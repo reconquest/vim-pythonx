@@ -353,13 +353,13 @@ def gocode_get_info(identifier):
     line, column = px.cursor.get()
 
     if identifier != "":
-        info = vim.eval("px#go#GetInfo('"+identifier+"')")
+        info = vim.eval("px#go#get_info('"+identifier+"')")
         return info
 
     before = px.buffer.get()[line][:column]
     word = re.search(r'(\w+)*$', before).group(1)
 
-    info = vim.eval("px#go#GetInfo('" + word + "')")
+    info = vim.eval("px#go#get_info('" + word + "')")
 
     return info
 

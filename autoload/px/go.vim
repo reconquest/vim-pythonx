@@ -1,6 +1,29 @@
 let s:sock_type = (has('win32') || has('win64')) ? 'tcp' : 'unix'
 
-function! px#go#GetInfo(identifier) abort
+function! px#go#get_info(identifier) abort
+    if g:pythonx_go_info_mode == 'coc'
+        return px#go#coc_info(a:identifier)
+    else
+        return px#go#gocode_info(a:identifier)
+    fi
+endfunc!
+
+func! px#go#coc_info(identifier) abort
+    let result = CocAction('getDefinition')
+    if result == ''
+        return ''
+    endif
+
+    let lines = split(result, '\n')
+    if len(lines) < 2
+        return result
+    endif
+
+    " first line will be markdown-ish stuff: ```go
+    return lines[1]
+endfunc!
+
+function! px#go#gocode_info(identifier) abort
   let offset = go#util#OffsetCursor()
   let filename = s:gocodeCurrentBuffer()
   let result = s:gocodeCommand('autocomplete',
