@@ -1,4 +1,4 @@
-#06-Jan-2020	 coding=utf8
+#06-Jan-2020     coding=utf8
 
 import vim
 import re
@@ -18,8 +18,8 @@ from px.langs import goto_re
 from px.langs import goto_re_first_before_cursor
 
 
-GOROOT = subprocess.check_output(['go', 'env', 'GOROOT']).strip()
-GOPATH = subprocess.check_output(['go', 'env', 'GOPATH']).strip()
+GOROOT = subprocess.check_output(['go', 'env', 'GOROOT'], encoding='UTF-8').strip()
+GOPATH = subprocess.check_output(['go', 'env', 'GOPATH'], encoding='UTF-8').strip()
 
 _DefaultAutoimporter = Autoimporter()
 _DefaultCompleter = DefaultCompleter()

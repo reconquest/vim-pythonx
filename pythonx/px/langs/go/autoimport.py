@@ -239,7 +239,8 @@ class Autoimporter(object):
                 target_dir,
             ],
             stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE
+            stderr=subprocess.PIPE,
+            encoding='UTF-8'
         )
         output, _ = process.communicate()
         lines = output.split("\n")

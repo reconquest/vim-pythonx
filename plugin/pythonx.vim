@@ -22,7 +22,7 @@ endfunction
 
 function! pythonx#autoimport()
     if !exists('b:_px_langs_go_autoimport_block_visual')
-        execute "py" "px.langs.go.autoimport_at_cursor()"
+        execute "py3" "px.langs.go.autoimport_at_cursor()"
     endif
     return ''
 endfunction!
