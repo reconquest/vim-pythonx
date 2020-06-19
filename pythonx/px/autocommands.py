@@ -13,7 +13,7 @@ def enable_identifier_completion_auto_reset():
     vim.command('au!')
     vim.command(
         'au CursorMovedI,CursorMoved * '
-        'pyx px.common.reset_identifier_completion()')
+        'py3 px.common.reset_identifier_completion()')
     vim.command('augroup end')
 
 
@@ -21,7 +21,7 @@ def enable_highlight_auto_clear():
     vim.command('augroup px_highlight_clear')
     vim.command('au!')
     vim.command(
-        'au CursorMovedI,CursorMoved * pyx px.common.clear_highlight()')
+        'au CursorMovedI,CursorMoved * py3 px.common.clear_highlight()')
     vim.command('augroup end')
 
 
@@ -36,5 +36,5 @@ def enable_cursor_moved_callbacks():
     vim.command('au!')
     vim.command(
         'au CursorMovedI,CursorMoved * '
-        'pyx px.common.run_cursor_moved_callbacks()')
+        'py3 px.common.run_cursor_moved_callbacks()')
     vim.command('augroup end')

@@ -1,13 +1,13 @@
-pyx import px.langs
+py3 import px.langs
 
-pyx import px.common
-pyx import px.autocommands
-pyx import px.snippets
+py3 import px.common
+py3 import px.autocommands
+py3 import px.snippets
 
 let g:pythonx_go_info_mode = get(g:, 'pythonx_go_info_mode', 'gocode')
 
 let g:pythonx_highlight_completion = get(g:, 'pythonx_highlight_completion', 1)
-execute "pyx"  "px.snippets.option_highlight_completion = " . g:pythonx_highlight_completion
+execute "py3"  "px.snippets.option_highlight_completion = " . g:pythonx_highlight_completion
 
 function! s:RememberBlockVisualState()
     let b:_px_langs_go_autoimport_block_visual = 1
@@ -37,7 +37,7 @@ endfunc!
 
 augroup px_langs_go
     au!
-    au FileType go pyx import px.langs.go
+    au FileType go py3 import px.langs.go
 
     au FileType go vnoremap <expr> I <SID>RememberBlockVisualState()
     au FileType go au InsertLeave <buffer>
@@ -47,13 +47,13 @@ augroup px_langs_go
 augroup END
 
 function! pythonx#CompleteIdentifier()
-    pyx px.autocommands.enable_identifier_completion_auto_reset()
+    py3 px.autocommands.enable_identifier_completion_auto_reset()
     if g:pythonx_highlight_completion == 1
-        pyx px.autocommands.enable_highlight_auto_clear()
+        py3 px.autocommands.enable_highlight_auto_clear()
     endif
-    pyx px.common.wrap_for_filetype('complete_identifier')()
+    py3 px.common.wrap_for_filetype('complete_identifier')()
     if g:pythonx_highlight_completion == 1
-        pyx px.common.highlight_completion()
+        py3 px.common.highlight_completion()
     endif
 endfunction!
 
@@ -64,4 +64,4 @@ endfunction!
 
 command! -nargs=0 -bar
     \ PythonxGoAutoimportResetCache
-    \ pyx px.langs.go.autoimport_reset_cache()
+    \ py3 px.langs.go.autoimport_reset_cache()
