@@ -157,19 +157,20 @@ class Autoimporter(object):
 
         imports = self.list_imports()
         for import_path in imports:
-            if "/internal/" in import_path:
-                continue
-
             if go_mod is not None:
                 import_path = px.util.remove_prefix(
                     import_path,
-                    go_mod['module'] + '/vendor/'
+                    go_mod + '/vendor/'
                 )
 
                 if import_path.startswith(
-                    go_mod['module'] + '/internal/'
+                    go_mod + '/internal/'
                 ):
                     continue
+            else:
+                if '/internal/' in import_path:
+                    continue
+
             if not reset:
                 if not import_path in all_imports and not import_path.find('/vendor'):
                     print(
@@ -194,6 +195,7 @@ class Autoimporter(object):
         packages = self.get_all_packages()
         if identifier not in packages:
             return None
+
         return packages[identifier]
 
     def _read_file_package_cache(self):
