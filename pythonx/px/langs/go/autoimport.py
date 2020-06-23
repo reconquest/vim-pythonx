@@ -133,26 +133,21 @@ class Autoimporter(object):
 
         vim.command("call px#go#import('{}')".format(import_path))
 
-    def parse_go_mod(self, dir):
-        path = os.path.join(dir, "go.mod")
-
-        if not os.path.exists(path):
-            return None
-
-        go_mod = {}
-
-        with open(path, 'r') as file:
-            for line in file:
-                match = re.match(r'^module (.*)$', line)
-                if match is not None:
-                    go_mod['module'] = match.group(1)
-
-        return go_mod
+    def get_go_mod(self, dir):
+        process = subprocess.Popen(["go", "list", "-m", "-json"],
+                stdout=subprocess.PIPE, stderr=subprocess.PIPE, encoding='UTF-8')
+        output, _ = process.communicate()
+        if process.returncode != 0:
+            return (None, None)
+        mod = json.loads(output)
+        return (mod['Path'], mod['Dir'])
 
     def get_import_path_for_identifier(self, identifier, reset=False):
         cwd = os.getcwd()
 
-        go_mod = self.parse_go_mod(cwd)
+        (go_mod, go_mod_dir) = self.get_go_mod(cwd)
+        if go_mod_dir:
+            cwd = go_mod_dir
 
         subpackages = self.get_subpackages_from_dir(cwd)
         if identifier in subpackages:
