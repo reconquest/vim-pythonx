@@ -121,3 +121,172 @@ function! px#go#GetPackagePath() abort
 
   return split(out, '\n')[0]
 endfunction
+
+" This is a modified version of vim-go's SwitchImport func
+" This function doesn't interact with the filesystem and just adds a given path to
+" the imports section
+function! px#go#import(path) abort
+  let view = winsaveview()
+  let path = substitute(a:path, '^\s*\(.\{-}\)\s*$', '\1', '')
+
+  " Quotes are not necessary, so remove them if provided.
+  if path[0] == '"'
+    let path = strpart(path, 1)
+  endif
+  if path[len(path)-1] == '"'
+    let path = strpart(path, 0, len(path) - 1)
+  endif
+
+  " if given a trailing slash, eg. `github.com/user/pkg/`, remove it
+  if path[len(path)-1] == '/'
+    let path = strpart(path, 0, len(path) - 1)
+  endif
+
+  if path == ''
+    call s:Error('Import path not provided')
+    return
+  endif
+
+  " Extract any site prefix (e.g. github.com/).
+  " If other imports with the same prefix are grouped separately,
+  " we will add this new import with them.
+  " Only up to and including the first slash is used.
+  let siteprefix = matchstr(path, "^[^/]*/")
+
+  let qpath = '"' . path . '"'
+  let qlocalpath = qpath
+  let indentstr = 0
+  let packageline = -1 " Position of package name statement
+  let appendline = -1  " Position to introduce new import
+  let deleteline = -1  " Position of line with existing import
+  let linesdelta = 0   " Lines added/removed
+
+  " Find proper place to add/remove import.
+  let line = 0
+  while line <= line('$')
+    let linestr = getline(line)
+
+    if linestr =~# '^package\s'
+      let packageline = line
+      let appendline = line
+
+    elseif linestr =~# '^import\s\+(\+)'
+      let appendline = line
+      let appendstr = qlocalpath
+    elseif linestr =~# '^import\s\+('
+      let appendstr = qlocalpath
+      let indentstr = 1
+      let appendline = line
+      let firstblank = -1
+      let lastprefix = ""
+      while line <= line("$")
+        let line = line + 1
+        let linestr = getline(line)
+        let m = matchlist(getline(line), '^\()\|\(\s\+\)\(\w\+\s\+\)\="\(.\+\)"\)')
+        if empty(m)
+          if siteprefix == ""
+            " must be in the first group
+            break
+          endif
+          " record this position, but keep looking
+          if firstblank < 0
+            let firstblank = line
+          endif
+          continue
+        endif
+        if m[1] == ')'
+          " if there's no match, add it to the first group
+          if appendline < 0 && firstblank >= 0
+            let appendline = firstblank
+          endif
+          break
+        endif
+        let lastprefix = matchstr(m[4], "^[^/]*/")
+        let appendstr = m[2] . qlocalpath
+        let indentstr = 0
+        if m[4] == path
+          let appendline = -1
+          let deleteline = line
+          break
+        elseif m[4] < path
+          " don't set candidate position if we have a site prefix,
+          " we've passed a blank line, and this doesn't share the same
+          " site prefix.
+          if siteprefix == "" || firstblank < 0 || match(m[4], "^" . siteprefix) >= 0
+            let appendline = line
+          endif
+        elseif siteprefix != "" && match(m[4], "^" . siteprefix) >= 0
+          " first entry of site group
+          let appendline = line - 1
+          break
+        endif
+      endwhile
+      break
+
+    elseif linestr =~# '^import '
+      if appendline == packageline
+        let appendstr = 'import ' . qlocalpath
+        let appendline = line - 1
+      endif
+      let m = matchlist(linestr, '^import\(\s\+\)\(\S*\s*\)"\(.\+\)"')
+      if !empty(m)
+        if m[3] == path
+          let appendline = -1
+          let deleteline = line
+          break
+        endif
+        if m[3] < path
+          let appendline = line
+        endif
+        let appendstr = 'import' . m[1] . qlocalpath
+      endif
+
+    elseif linestr =~# '^\(var\|const\|type\|func\)\>'
+      break
+
+    endif
+    let line = line + 1
+  endwhile
+
+  " Append or remove the package import, as requested.
+  if deleteline != -1
+    call s:Error(qpath . ' already being imported')
+  elseif appendline == -1
+    call s:Error('No package line found')
+  else
+    if appendline == packageline
+      call append(appendline + 0, '')
+      call append(appendline + 1, 'import (')
+      call append(appendline + 2, ')')
+      let appendline += 2
+      let linesdelta += 3
+      let appendstr = qlocalpath
+      let indentstr = 1
+      call append(appendline, appendstr)
+    elseif getline(appendline) =~# '^import\s\+(\+)'
+      call setline(appendline, 'import (')
+      call append(appendline + 0, appendstr)
+      call append(appendline + 1, ')')
+      let linesdelta -= 1
+      let indentstr = 1
+    else
+      call append(appendline, appendstr)
+    endif
+    execute appendline + 1
+    if indentstr
+      execute 'normal! >>'
+    endif
+    let linesdelta += 1
+  endif
+
+  " Adjust view for any changes.
+  let view.lnum += linesdelta
+  let view.topline += linesdelta
+  if view.topline < 0
+    let view.topline = 0
+  endif
+
+  " Put buffer back where it was.
+  call winrestview(view)
+
+endfunction

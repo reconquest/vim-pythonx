@@ -131,7 +131,7 @@ class Autoimporter(object):
         if not import_path:
             return
 
-        vim.command('GoImport {}'.format(import_path))
+        vim.command("call px#go#import('{}')".format(import_path))
 
     def parse_go_mod(self, dir):
         path = os.path.join(dir, "go.mod")
