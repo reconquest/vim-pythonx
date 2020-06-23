@@ -143,7 +143,7 @@ function! px#go#import(path) abort
   endif
 
   if path == ''
-    call s:Error('Import path not provided')
+    echoe 'Import path not provided'
     return
   endif
 
@@ -250,9 +250,9 @@ function! px#go#import(path) abort
 
   " Append or remove the package import, as requested.
   if deleteline != -1
-    call s:Error(qpath . ' already being imported')
+    return
   elseif appendline == -1
-    call s:Error('No package line found')
+    return
   else
     if appendline == packageline
       call append(appendline + 0, '')
