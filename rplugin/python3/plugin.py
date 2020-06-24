@@ -5,6 +5,7 @@ import os.path
 import glob
 import sys
 import shutil
+import json
 
 sys.path.append(
     os.path.dirname(
@@ -16,6 +17,16 @@ sys.path.append(
 class Main(object):
     def __init__(self, vim=None):
         self.vim = vim
+        self._last_diagnostic = []
+        self.setup_log()
+
+    def setup_log(self):
+        handler = logging.FileHandler('/tmp/rplugin.log')
+        handler.setLevel(logging.DEBUG)
+
+        self.log = logging.getLogger('rplugin')
+        self.log.setLevel(logging.DEBUG)
+        self.log.addHandler(handler)
 
     @neovim.function('PythonxJavaChooseImport', sync=True)
     def choose_import(self, args):
@@ -40,7 +51,6 @@ class Main(object):
         votes_class = {}
         votes_package = {}
 
-        # x = ""
         for dirpath, _, files in os.walk(path):
             for name in files:
                 if not name.endswith(".java"):
@@ -49,9 +59,6 @@ class Main(object):
                 (imports_class, imports_packages) = get_imports(
                     os.path.join(dirpath, name)
                 )
-                # x += " name: " + name
-                # x += " imports_class: " + str(imports_class)
-                # x += " imports_packages: " + str(imports_packages)
                 for candidate in candidates:
                     if candidate in imports_class:
                         if not candidate in votes_class:
@@ -85,6 +92,70 @@ class Main(object):
 
         return -1
 
+    def _get_coc_diagnostic(self):
+        cwd = os.getcwd()
+
+        def _map(item):
+            filename = item['file']
+            if filename.startswith(cwd):
+                filename = filename[len(cwd) + 1:]
+
+            item['file'] = filename
+
+            return item
+
+        def _filter(item):
+            if item['severity'] != 'Error' and item['severity'] != 'Warning':
+                return False
+            if item['file'] == '':
+                return False
+
+            if item['file'] == 'pom.xml':
+                return False
+            if item['file'].endswith('Compat.java'):
+                return False
+
+            return True
+
+        raw = self.vim.eval("CocAction('diagnosticList')")
+        if not raw:
+            return []
+
+        return list(
+            filter(_filter, map(_map, raw))
+        )
+
+    @neovim.function('PythonxCocDiagnosticFirst', sync=True)
+    def coc_diagnostic_first(self, args):
+        diagnostic = self._get_coc_diagnostic()
+        if len(diagnostic) == 0:
+            return
+
+        self._jump_diagnostic(diagnostic[0])
+
+    @neovim.function('PythonxCocDiagnosticNext', sync=True)
+    def coc_diagnostic_next(self, args):
+        diagnostic = self._get_coc_diagnostic()
+        if len(diagnostic) == 0:
+            return
+
+        if self._last_diagnostic != diagnostic:
+            self._last_diagnostic = diagnostic
+            self._diagnostic_point = 0
+        else:
+            self._diagnostic_point += 1
+            if self._diagnostic_point >= len(diagnostic):
+                self._diagnostic_point = 0
+
+        self._jump_diagnostic(diagnostic[self._diagnostic_point])
+
+    def _jump_diagnostic(self, item):
+        self.vim.command('edit ' + item['file'])
+
+        line = item['lnum']
+        char = item['col']
+
+        self.vim.eval('coc#util#jumpTo(' + str(line-1) + ', ' + str(char) + ')')
 
 def get_imports(filepath):
     classes = []

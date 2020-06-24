@@ -23,7 +23,7 @@ def ensure_newlines(buffer, cursor, amount):
 
 def ensure_indent(buffer, cursor, indent,
         expand_tab=True, shift_width=4):
-    if expand_tab == "1":
+    if expand_tab:
         indent_symbol = ' ' * shift_width
     else:
         indent_symbol = '\t'
@@ -52,7 +52,7 @@ def get_higher_indent(buffer, cursor, current_indent=None):
 
         line_indent, _ = get_indentation(line)
         ## return usecase.Update(ctx, userID, map[string]interface{}{
-        ## 	"buildingID": <- cursor here
+        ##  "buildingID": <- cursor here
         ## }
         if current_indent > line_indent:
         # if current_indent < line_indent:
