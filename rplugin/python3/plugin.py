@@ -107,11 +107,7 @@ class Main(object):
         def _filter(item):
             if item['severity'] != 'Error' and item['severity'] != 'Warning':
                 return False
-            if item['file'] == '':
-                return False
 
-            if item['file'] == 'pom.xml':
-                return False
             if item['file'].endswith('Compat.java'):
                 return False
 
