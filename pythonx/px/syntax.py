@@ -32,10 +32,13 @@ def get_names(position):
             *px.cursor.to_vim_lang(position)
         ))
     except:
-        return []
+        pass
 
     names = []
     for syn_id in syntax_stack:
+        names.append(
+            vim.eval('synIDattr({}, "name")'.format(syn_id))
+        )
         names.append(
             vim.eval('synIDattr(synIDtrans({}), "name")'.format(syn_id))
         )
@@ -44,8 +47,11 @@ def get_names(position):
 
 
 def is_string(cursor):
-    return 'String' in get_names(cursor)
+    for name in get_names(cursor):
+        if 'String' in name:
+            return True
 
+    return False
 
 # lookbehind=True will match previous character as well due weird syntax
 # identification in vim, when last character in comment is not identified
