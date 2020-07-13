@@ -113,13 +113,20 @@ class Main(object):
 
             return True
 
+        def _sort(item):
+            if "Syntax error" in item['message']:
+                return 0
+            return 1
+
         raw = self.vim.eval("CocAction('diagnosticList')")
         if not raw:
             return []
 
-        return list(
-            filter(_filter, map(_map, raw))
+        result = list(
+            sorted(filter(_filter, map(_map, raw)), key=_sort)
         )
+
+        return result
 
     @neovim.function('PythonxCocDiagnosticFirst', sync=True)
     def coc_diagnostic_first(self, args):
