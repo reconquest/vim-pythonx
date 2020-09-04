@@ -153,7 +153,16 @@ class Main(object):
         self._jump_diagnostic(diagnostic[self._diagnostic_point])
 
     def _jump_diagnostic(self, item):
-        self.vim.command('edit ' + item['file'])
+        cwd = os.getcwd()
+
+        name = self.vim.current.buffer.name
+
+        relname = name
+        if relname.startswith(cwd):
+            relname = relname[len(cwd)+1:]
+
+        if name != item['file'] and relname != item['file']:
+            self.vim.command('edit ' + item['file'])
 
         line = item['lnum']
         char = item['col']
