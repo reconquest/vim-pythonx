@@ -108,7 +108,7 @@ class Main(object):
             if item['severity'] != 'Error' and item['severity'] != 'Warning':
                 return False
 
-            if item['file'].endswith('Compat.java'):
+            if item['file'].endswith('Compat.java') or item['file'].endswith('go.mod'):
                 return False
 
             return True
