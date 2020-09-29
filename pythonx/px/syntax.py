@@ -48,7 +48,7 @@ def get_names(position):
 
 def is_string(cursor):
     for name in get_names(cursor):
-        if 'String' in name:
+        if 'string' in name.lower():
             return True
 
     return False
@@ -57,7 +57,11 @@ def is_string(cursor):
 # identification in vim, when last character in comment is not identified
 # as comment.
 def is_comment(cursor, lookbehind=True):
-    comment = 'Comment' in get_names(cursor)
+    comment = False
+    for name in get_names(cursor):
+        if 'comment' in name.lower():
+            comment = True
+            break
 
     if lookbehind:
         if cursor[1] != 0 and is_comment((cursor[0], cursor[1]-1), False):
