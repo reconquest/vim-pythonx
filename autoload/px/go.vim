@@ -2,13 +2,13 @@ let s:sock_type = (has('win32') || has('win64')) ? 'tcp' : 'unix'
 
 function! px#go#get_info(identifier) abort
     if g:pythonx_go_info_mode == 'coc'
-        return px#go#coc_info(a:identifier)
+        return px#go#coc_info()
     else
         return px#go#gocode_info(a:identifier)
     fi
 endfunc!
 
-func! px#go#coc_info(identifier) abort
+func! px#go#coc_info() abort
     let result = CocAction('getDefinition')
     if result == ''
         return ''
