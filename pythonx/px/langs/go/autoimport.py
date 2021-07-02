@@ -153,9 +153,10 @@ class Autoimporter(object):
         if identifier in subpackages:
             return subpackages[identifier]
 
-        all_imports = self.get_all_imports()
+        all_imports = self.get_all_imports_cached()
 
-        imports = self.list_imports()
+        imports = self.get_project_imports()
+        contenders = {}
         for import_path in imports:
             if go_mod is not None:
                 import_path = px.util.remove_prefix(
@@ -190,7 +191,18 @@ class Autoimporter(object):
             if import_path in all_imports:
                 package = all_imports[import_path]
                 if package == identifier:
-                    return import_path
+                    if import_path in contenders:
+                        contenders[import_path] += 1
+                    else:
+                        contenders[import_path] = 1
+
+        if len(contenders) > 0:
+            (contender, _) = sorted(
+                contenders.items(),
+                key=lambda item: item[1],
+                reverse=True
+            )[0]
+            return contender
 
         packages = self.get_all_packages()
         if identifier not in packages:
@@ -218,7 +230,7 @@ class Autoimporter(object):
                 lines.append(file + ':' + package)
             cache.write('\n'.join(lines))
 
-    def list_imports(self):
+    def get_project_imports(self):
         target_dir = "./..."
         # do not run recursive go list for non-GOPATH directories since it can
         # cause too long wait
@@ -247,7 +259,7 @@ class Autoimporter(object):
 
         return lines
 
-    def get_all_imports(self):
+    def get_all_imports_cached(self):
         if self._cached_imports:
             return self._cached_imports
 
