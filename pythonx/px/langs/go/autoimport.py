@@ -361,6 +361,7 @@ class Autoimporter(object):
             root_dir = root_src_dir
 
         last_package_dir = None
+        last_package_go_mod = None
         last_package_dir_depth = 0
 
         max_depth_blind = 5
@@ -376,6 +377,10 @@ class Autoimporter(object):
             # os.walk()
             dirs[:] = self._filter_exclude(dirs)
 
+            go_mod = self._find_go_mod_package(package_dir, files)
+            if not last_package_go_mod or not (last_package_dir and package_dir.startswith(last_package_dir)):
+                last_package_go_mod = go_mod
+
             go_file = self._find_first_go_package_file(package_dir, files)
 
             # if no go files found and parent directory already has
@@ -388,19 +393,24 @@ class Autoimporter(object):
                             dirs[:] = []
                         else:
                             last_package_dir = None
+                            last_package_go_mod = None
                             last_package_dir_depth = 0
                 continue
 
-            if root_dir != package_dir:
-                # +1 stands for /
-                package_import = package_dir[len(root_dir)+1:]
-            else:
-                package_import = os.path.basename(package_dir)
 
-            # fix for standard libraries
-            if root_dir.startswith(px.langs.go.GOROOT):
-                if package_import[:4] == "pkg/":
-                    package_import = package_import[4:]
+            if last_package_go_mod:
+                package_import = last_package_go_mod + package_dir[len(last_package_dir):]
+            else:
+                if root_dir != package_dir:
+                    # +1 stands for /
+                    package_import = package_dir[len(root_dir)+1:]
+                else:
+                    package_import = os.path.basename(package_dir)
+
+                # fix for standard libraries
+                if root_dir.startswith(px.langs.go.GOROOT):
+                    if package_import[:4] == "pkg/":
+                        package_import = package_import[4:]
 
             imports[package_import] = package_dir + "/" + go_file
 
@@ -433,3 +443,14 @@ class Autoimporter(object):
                 )
                 if package != "main":
                     return file
+
+    def _find_go_mod_package(self, dir, files):
+        for file in files:
+            if file != 'go.mod':
+                continue
+
+            with open(dir + "/" + file) as gomod:
+                for line in gomod:
+                    if line.startswith('module '):
+                        return line.split(' ')[1].strip()
+        return None
