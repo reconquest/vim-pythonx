@@ -92,6 +92,9 @@ class Autoimporter(object):
     def autoimport_at_cursor(self):
         cursor = px.cursor.get()
 
+        if px.syntax.is_number(cursor):
+            return
+
         if px.syntax.is_string(cursor):
             return
 
@@ -114,6 +117,9 @@ class Autoimporter(object):
             return
 
         if identifier.count('.') >= 1:
+            return
+
+        if re.match(r'^\d+$', identifier):
             return
 
         info = ""

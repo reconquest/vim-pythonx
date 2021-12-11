@@ -53,6 +53,14 @@ def is_string(cursor):
 
     return False
 
+
+def is_number(cursor):
+    for name in get_names(cursor):
+        if 'Number' in name:
+            return True
+
+    return False
+
 # lookbehind=True will match previous character as well due weird syntax
 # identification in vim, when last character in comment is not identified
 # as comment.
