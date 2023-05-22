@@ -162,6 +162,7 @@ class Autoimporter(object):
         all_imports = self.get_all_imports_cached()
 
         imports = self.get_project_imports()
+
         contenders = {}
         for import_path in imports:
             if go_mod is not None:
@@ -179,7 +180,7 @@ class Autoimporter(object):
                     continue
 
             if not reset:
-                if not import_path in all_imports and not import_path.find('/vendor'):
+                if not import_path in all_imports and not '/vendor/' in import_path:
                     print(
                         "vim-pythonx: unknown package is "+
                         "imported in the program: " + import_path)
@@ -265,7 +266,7 @@ class Autoimporter(object):
 
         return lines
 
-    def get_all_imports_cached(self):
+    def get_all_imports_cached(self): # type: () -> Dict[str, str]
         if self._cached_imports:
             return self._cached_imports
 
@@ -358,7 +359,12 @@ class Autoimporter(object):
                 os.path.join(root_dir, "src")
             ))
 
+        imports.update(self._get_import_path_from_dir(
+            os.path.join(px.langs.go.GOPATH, "pkg/mod")
+        ))
+
         return imports
+
 
     def _get_import_path_from_dir(self, root_src_dir, root_dir=None):
         imports = {}
@@ -404,7 +410,7 @@ class Autoimporter(object):
                 continue
 
 
-            if last_package_go_mod:
+            if last_package_go_mod and last_package_dir:
                 package_import = last_package_go_mod + package_dir[len(last_package_dir):]
             else:
                 if root_dir != package_dir:
@@ -418,7 +424,13 @@ class Autoimporter(object):
                     if package_import[:4] == "pkg/":
                         package_import = package_import[4:]
 
+            if "@" in package_import:
+                package_import = package_import.split("@")[0]
+
             imports[package_import] = package_dir + "/" + go_file
+
+            # if "kafka-go" in package_import:
+            #     print(package_import, package_dir, go_file)
 
             # remember top-level package directory
             if not (last_package_dir and

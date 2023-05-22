@@ -4,6 +4,7 @@ py3 import px.common
 py3 import px.autocommands
 py3 import px.snippets
 
+let g:autoimport_at_cursor = get(g:, 'autoimport_at_cursor', 0)
 let g:pythonx_go_info_mode = get(g:, 'pythonx_go_info_mode', 'gocode')
 
 let g:pythonx_highlight_completion = get(g:, 'pythonx_highlight_completion', 1)
@@ -28,10 +29,16 @@ function! pythonx#autoimport()
 endfunction!
 
 func! pythonx#map_autoimport()
-   inoremap <silent> <buffer> . <C-\><C-O>:call pythonx#autoimport()<CR>.
+    if g:autoimport_at_cursor == 0
+        return
+
+    inoremap <silent> <buffer> . <C-\><C-O>:call pythonx#autoimport()<CR>.
 endfunc!
 
 func! pythonx#unmap_autoimport()
+    if g:autoimport_at_cursor == 0
+        return
+
     silent! iunmap <buffer> .
 endfunc!
 

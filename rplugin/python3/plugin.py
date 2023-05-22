@@ -167,7 +167,7 @@ class Main(object):
         line = item['lnum']
         char = item['col']
 
-        self.vim.eval('coc#util#jumpTo(' + str(line-1) + ', ' + str(char) + ')')
+        self.vim.eval('coc#cursor#move_to(' + str(line-1) + ', ' + str(char) + ')')
 
 def get_imports(filepath):
     classes = []

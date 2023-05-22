@@ -48,9 +48,11 @@ def path_to_import_name(path):
 
 
 def get_package_name_from_file(path):
-    with open(path) as gofile:
-        for line in gofile:
-            if line.endswith('_test\n'):
-                continue
-            if line.startswith('package '):
-                return line.split(' ')[1].strip()
+    try:
+        with open(path) as gofile:
+            for line in gofile:
+                if line.startswith('package '):
+                    return line.split(' ')[1].strip()
+    except:
+        print("Error while reading file: %s" % path)
+        return None
