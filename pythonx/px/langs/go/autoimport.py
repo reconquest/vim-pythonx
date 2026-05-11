@@ -128,7 +128,7 @@ class Autoimporter(object):
         except Exception:
             raise
 
-        if info != "" and re.match("^(var|type|package) \w+", info):
+        if info != "" and re.match(r"^(var|type|package) \w+", info):
             return
 
         possible_package = identifier.split('.')[0]

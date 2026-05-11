@@ -34,7 +34,7 @@ def get_last_used(identifiers, previous_match=None,
             return identifier
 
 def _default_under_cursor_matcher(line_number, line):
-    matches = re.search('([\w.]+)$', line)
+    matches = re.search(r'([\w.]+)$', line)
     if not matches:
         return None
 
@@ -60,7 +60,7 @@ def get_under_cursor(
 
 
 def _default_extractor(line_number, line):
-    matches = re.finditer('([\w.]+)(?![\w.]*\()', line)
+    matches = re.finditer(r'([\w.]+)(?![\w.]*\()', line)
     if not matches:
         return
 

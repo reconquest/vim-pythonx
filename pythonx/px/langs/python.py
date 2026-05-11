@@ -5,9 +5,9 @@ import re
 import px.whitespaces
 import px.buffer
 
-function_re = re.compile('^def ')
-method_re = re.compile('^\s+def ')
-class_re = re.compile('^class ')
+function_re = re.compile(r'^def ')
+method_re = re.compile(r'^\s+def ')
+class_re = re.compile(r'^class ')
 
 
 def ensure_newlines(buffer, cursor):

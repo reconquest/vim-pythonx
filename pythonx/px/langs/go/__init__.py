@@ -78,11 +78,11 @@ def get_previous_slice_usage(buffer, cursor):
 
 def split_parenthesis():
     first_paren = vim.eval('searchpos("(", "bc")')
-    vim.command('exec "normal a\<CR>"')
+    vim.command(r'exec "normal a\<CR>"')
     vim.command('call search("(", "bc")')
     px.cursor.set((int(first_paren[0])-1, int(first_paren[1])))
     vim.command('normal %')
-    vim.command('exec "normal ha,\<CR>"')
+    vim.command(r'exec "normal ha,\<CR>"')
 
 
 def is_if_bracket(buffer, line, column):
@@ -104,10 +104,10 @@ def is_in_err_condition(buffer, line, column):
 
 
 def is_struct_bracket(buffer, line, column):
-    is_struct_def = re.match("^type \w+ struct",
+    is_struct_def = re.match(r"^type \w+ struct",
         px.buffer.get_pair_line(buffer, line, column))
 
-    is_method_def = re.match("^func \(\w+ \w+\) ",
+    is_method_def = re.match(r"^func \(\w+ \w+\) ",
         px.buffer.get_pair_line(buffer, line, column))
 
     return is_struct_def or is_method_def
@@ -145,7 +145,7 @@ def is_switch(buffer, line):
         buffer,
         (line, None),
         buffer[line],
-        '^\s*switch ',
+        r'^\s*switch ',
         direction=-1
     )
 
@@ -158,7 +158,7 @@ def is_case(buffer, line):
     match = px.whitespaces.match_higher_indent(
         buffer,
         (line, None),
-        '^\s*(case\s+|default:)'
+        r'^\s*(case\s+|default:)'
     )
 
     if match is not None:
@@ -172,7 +172,7 @@ def is_select(buffer, line):
         buffer,
         (line, None),
         buffer[line],
-        '^\s*select ',
+        r'^\s*select ',
         direction=-1
     )
 

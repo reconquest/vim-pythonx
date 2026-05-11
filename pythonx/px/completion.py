@@ -15,7 +15,7 @@ class IdentifierCompleter(object):
 
     @staticmethod
     def _default_identifier_matcher(line_number, line):
-        matches = re.search('([\w.]+)(?![\w.]*\()$', line)
+        matches = re.search(r'([\w.]+)(?![\w.]*\()$', line)
         if not matches:
             return None
 

@@ -101,7 +101,7 @@ def expand(snip, jump_pos=1):
     if snip.tabstop != jump_pos:
         return
 
-    vim.eval('feedkeys("\<C-R>=UltiSnips#ExpandSnippet()\<CR>")')
+    vim.eval(r'feedkeys("\<C-R>=UltiSnips#ExpandSnippet()\<CR>")')
 
 
 def _make_jumper_jump(snip, direction):
@@ -114,7 +114,7 @@ def _make_jumper_jump(snip, direction):
 
     jumper['enabled'] = False
 
-    vim.command('call feedkeys("\<C-R>=UltiSnips#Jump' +
-        direction.title() + '()\<CR>")')
+    vim.command(r'call feedkeys("\<C-R>=UltiSnips#Jump' +
+        direction.title() + r'()\<CR>")')
 
     return True

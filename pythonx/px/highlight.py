@@ -28,7 +28,7 @@ class Highlighter(object):
         self._active_highlights = kept
 
     def highlight(self, line_number, column_start, length, group='IncSearch'):
-        match_id = vim.eval('matchadd("{0}", \'\%{2}l\%{3}c.{1}\')'.format(
+        match_id = vim.eval('matchadd("{0}", \'\\%{2}l\\%{3}c.{1}\')'.format(
             group,
             '\\{'+str(length)+'\\}',
             *px.cursor.to_vim_lang((line_number, column_start))
